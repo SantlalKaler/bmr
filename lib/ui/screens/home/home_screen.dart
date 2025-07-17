@@ -1,0 +1,350 @@
+import 'package:bmr/ui/constants/dimens_constants.dart';
+import 'package:bmr/ui/constants/image_constants.dart';
+import 'package:bmr/ui/theme_light.dart';
+import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
+import '../../routes/mobile_routes.dart';
+
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
+
+  final List<Map<String, dynamic>> dashboardTiles = [
+    {
+      'title': 'Current Day Task',
+      'color': Colors.blue,
+      'onTap': () {
+        // TODO: Handle My Tasks Tap
+      },
+      'icon': ImageConstants.currentDayTask, // 🔍 Replace with appropriate icon
+      'comment': 'Tasks Icon'
+    },
+    {
+      'title': 'View Task',
+      'color': Colors.green,
+      'onTap': () {},
+      'icon': ImageConstants.viewTask, // 🔍 Replace with appropriate icon
+      'comment': 'Attendance Icon'
+    },
+    {
+      'title': 'Assign Task',
+      'color': Colors.orange,
+      'onTap': () {},
+      'icon': ImageConstants.assignTask, // 🔍 Replace with appropriate icon
+      'comment': 'Leave Icon'
+    },
+    {
+      'title': 'Sampling',
+      'color': Colors.red,
+      'onTap': () {},
+      'icon': ImageConstants.sampling, // 🔍 Replace with appropriate icon
+      'comment': 'Report Icon'
+    },
+    {
+      'title': 'Harvest',
+      'color': Colors.teal,
+      'onTap': () {},
+      'icon': ImageConstants.harvest, // 🔍 Replace with appropriate icon
+      'comment': 'Report Icon'
+    },
+    {
+      'title': 'Technical',
+      'color': Colors.black,
+      'onTap': () {},
+      'icon': ImageConstants.technical, // 🔍 Replace with appropriate icon
+      'comment': 'Report Icon'
+    },
+    {
+      'title': 'Location Tracing',
+      'color': Colors.purpleAccent,
+      'onTap': () {},
+      'icon':
+          ImageConstants.locationTracking, // 🔍 Replace with appropriate icon
+      'comment': 'Report Icon'
+    },
+    {
+      'title': 'Approval',
+      'color': Colors.indigo,
+      'onTap': () {},
+      'icon': ImageConstants.approved, // 🔍 Replace with appropriate icon
+      'comment': 'Report Icon'
+    },
+    {
+      'title': 'Customers',
+      'color': Colors.cyan,
+      'onTap': () {},
+      'icon': ImageConstants.customers, // 🔍 Replace with appropriate icon
+      'comment': 'Report Icon'
+    },
+    {
+      'title': 'To Do List',
+      'color': Colors.blueGrey,
+      'onTap': () {},
+      'icon': ImageConstants.toDoList, // 🔍 Replace with appropriate icon
+      'comment': 'Report Icon'
+    },
+    {
+      'title': 'Task History',
+      'color': Colors.purple,
+      'onTap': () {},
+      'icon': ImageConstants.taskHistory, // 🔍 Replace with appropriate icon
+      'comment': 'Report Icon'
+    },
+    {
+      'title': 'Profile',
+      'color': Colors.brown,
+      'onTap': () {},
+      'icon': ImageConstants.profile, // 🔍 Replace with appropriate icon
+      'comment': 'Report Icon'
+    },
+  ];
+
+  void _logout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Are you sure want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(), // No
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              context.pushReplacement(AppPath.loginPath); // Navigate to login
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        title: Image.asset(
+          ImageConstants.logo,
+          height: 40,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.mark_email_read_outlined),
+            color: primaryColor,
+            onPressed: () {
+              _logout(context);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            color: primaryColor,
+            onPressed: () {
+              _logout(context);
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Padding(
+          padding: EdgeInsets.all(DimensConstants.screenPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Hello, Xa Kaler",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    DateFormat('dd-MM-yyyy').format(DateTime.now()).toString(),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
+              const Gap(10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    "House Logged: 00:00",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+
+              const Gap(20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        context.push(AppPath.dateInOutPath);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadiusGeometry.circular(100),
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Theme.of(context).primaryColor,
+                              primaryColorDark,
+                            ],
+                          ),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15.0, vertical: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.login_outlined,
+                                color: Colors.white,
+                              ),
+                              Gap(5),
+                              Text(
+                                "Day In: 00:00",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Gap(10),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        context.push(AppPath.dateInOutPath);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadiusGeometry.circular(100),
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Theme.of(context).primaryColor,
+                              primaryColorDark,
+                            ],
+                          ),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.0, vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.logout,
+                                color: Colors.white,
+                              ),
+                              Gap(5),
+                              Text(
+                                "Day Out: 00:00",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const Gap(20),
+
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadiusGeometry.circular(100),
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Theme.of(context).primaryColor,
+                      primaryColorDark,
+                    ],
+                  ),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Total Tasks",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      "Total Sampling",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      "Total Harvesting",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Gap(20),
+
+              // Grid View Tiles
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                children: dashboardTiles.map((tile) {
+                  return GestureDetector(
+                    onTap: tile['onTap'],
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: tile['color'].withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Image.asset(tile['icon'],
+                              height: 30, width: 30, color: tile['color']),
+                          const Gap(10),
+                          Text(
+                            tile['title'],
+                            textAlign: TextAlign.end,
+                            maxLines: 2,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall!
+                                .copyWith(color: tile['color']),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
