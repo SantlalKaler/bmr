@@ -5,9 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../constants/dimens_constants.dart';
 
 class TopAppBar extends StatelessWidget {
-  const TopAppBar({super.key, required this.title});
+  const TopAppBar({super.key, this.title, this.customTitle});
 
-  final String title;
+  final String? title;
+  final Widget? customTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -96,14 +97,14 @@ class TopAppBar extends StatelessWidget {
                       ],
                     )),
                 Positioned(
-                    bottom: 10,
-                    right: 0,
-                    child: Text(title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        )))
+                        bottom: 10,
+                        right: 0,
+                        child: Text(title!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            )))
               ],
             ),
           ),

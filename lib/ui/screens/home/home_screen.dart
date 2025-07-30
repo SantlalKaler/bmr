@@ -9,97 +9,7 @@ import 'package:intl/intl.dart';
 import '../../routes/mobile_routes.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
-
-  final List<Map<String, dynamic>> dashboardTiles = [
-    {
-      'title': 'Current Day Task',
-      'color': Colors.blue,
-      'onTap': () {
-        // TODO: Handle My Tasks Tap
-      },
-      'icon': ImageConstants.currentDayTask, // 🔍 Replace with appropriate icon
-      'comment': 'Tasks Icon'
-    },
-    {
-      'title': 'View Task',
-      'color': Colors.green,
-      'onTap': () {},
-      'icon': ImageConstants.viewTask, // 🔍 Replace with appropriate icon
-      'comment': 'Attendance Icon'
-    },
-    {
-      'title': 'Assign Task',
-      'color': Colors.orange,
-      'onTap': () {},
-      'icon': ImageConstants.assignTask, // 🔍 Replace with appropriate icon
-      'comment': 'Leave Icon'
-    },
-    {
-      'title': 'Sampling',
-      'color': Colors.red,
-      'onTap': () {},
-      'icon': ImageConstants.sampling, // 🔍 Replace with appropriate icon
-      'comment': 'Report Icon'
-    },
-    {
-      'title': 'Harvest',
-      'color': Colors.teal,
-      'onTap': () {},
-      'icon': ImageConstants.harvest, // 🔍 Replace with appropriate icon
-      'comment': 'Report Icon'
-    },
-    {
-      'title': 'Technical',
-      'color': Colors.black,
-      'onTap': () {},
-      'icon': ImageConstants.technical, // 🔍 Replace with appropriate icon
-      'comment': 'Report Icon'
-    },
-    {
-      'title': 'Location Tracing',
-      'color': Colors.purpleAccent,
-      'onTap': () {},
-      'icon':
-          ImageConstants.locationTracking, // 🔍 Replace with appropriate icon
-      'comment': 'Report Icon'
-    },
-    {
-      'title': 'Approval',
-      'color': Colors.indigo,
-      'onTap': () {},
-      'icon': ImageConstants.approved, // 🔍 Replace with appropriate icon
-      'comment': 'Report Icon'
-    },
-    {
-      'title': 'Customers',
-      'color': Colors.cyan,
-      'onTap': () {},
-      'icon': ImageConstants.customers, // 🔍 Replace with appropriate icon
-      'comment': 'Report Icon'
-    },
-    {
-      'title': 'To Do List',
-      'color': Colors.blueGrey,
-      'onTap': () {},
-      'icon': ImageConstants.toDoList, // 🔍 Replace with appropriate icon
-      'comment': 'Report Icon'
-    },
-    {
-      'title': 'Task History',
-      'color': Colors.purple,
-      'onTap': () {},
-      'icon': ImageConstants.taskHistory, // 🔍 Replace with appropriate icon
-      'comment': 'Report Icon'
-    },
-    {
-      'title': 'Profile',
-      'color': Colors.brown,
-      'onTap': () {},
-      'icon': ImageConstants.profile, // 🔍 Replace with appropriate icon
-      'comment': 'Report Icon'
-    },
-  ];
+  const HomeScreen({super.key});
 
   void _logout(BuildContext context) {
     showDialog(
@@ -125,6 +35,118 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> dashboardTiles = [
+      {
+        'title': 'Current Day Task',
+        'color': Colors.blue,
+        'onTap': () {
+          context.push(AppPath.currentDayPath);
+        },
+        'icon':
+            ImageConstants.currentDayTask, // 🔍 Replace with appropriate icon
+        'comment': 'Tasks Icon'
+      },
+      {
+        'title': 'View Task',
+        'color': Colors.green,
+        'onTap': () {
+          context.push(AppPath.viewTask);
+        },
+        'icon': ImageConstants.viewTask, // 🔍 Replace with appropriate icon
+        'comment': 'Attendance Icon'
+      },
+      {
+        'title': 'Assign Task',
+        'color': Colors.orange,
+        'onTap': () {
+          context.push(AppPath.creteTaskPath);
+        },
+        'icon': ImageConstants.assignTask, // 🔍 Replace with appropriate icon
+        'comment': 'Leave Icon'
+      },
+      {
+        'title': 'Sampling',
+        'color': Colors.red,
+        'onTap': () {
+          context.push(AppPath.directSampling);
+        },
+        'icon': ImageConstants.sampling, // 🔍 Replace with appropriate icon
+        'comment': 'Report Icon'
+      },
+      {
+        'title': 'Harvest',
+        'color': Colors.teal,
+        'onTap': () {
+          context.push(AppPath.directHarvest);
+        },
+        'icon': ImageConstants.harvest, // 🔍 Replace with appropriate icon
+        'comment': 'Report Icon'
+      },
+      {
+        'title': 'Technical',
+        'color': Colors.black,
+        'onTap': () {
+          context.push(AppPath.directTechnical);
+        },
+        'icon': ImageConstants.technical, // 🔍 Replace with appropriate icon
+        'comment': 'Report Icon'
+      },
+      {
+        'title': 'Location Tracing',
+        'color': Colors.purpleAccent,
+        'onTap': () {
+          context.push(AppPath.locationTracking);
+        },
+        'icon':
+            ImageConstants.locationTracking, // 🔍 Replace with appropriate icon
+        'comment': 'Report Icon'
+      },
+      {
+        'title': 'Approval',
+        'color': Colors.indigo,
+        'onTap': () {
+          context.push(AppPath.approval);
+        },
+        'icon': ImageConstants.approved, // 🔍 Replace with appropriate icon
+        'comment': 'Report Icon'
+      },
+      {
+        'title': 'Customers',
+        'color': Colors.cyan,
+        'onTap': () {
+          context.push(AppPath.createFarmer);
+        },
+        'icon': ImageConstants.customers, // 🔍 Replace with appropriate icon
+        'comment': 'Report Icon'
+      },
+      {
+        'title': 'To Do List',
+        'color': Colors.blueGrey,
+        'onTap': () {
+          context.push(AppPath.todoList);
+        },
+        'icon': ImageConstants.toDoList, // 🔍 Replace with appropriate icon
+        'comment': 'Report Icon'
+      },
+      {
+        'title': 'Task History',
+        'color': Colors.purple,
+        'onTap': () {
+          context.push(AppPath.taskHistory);
+        },
+        'icon': ImageConstants.taskHistory, // 🔍 Replace with appropriate icon
+        'comment': 'Report Icon'
+      },
+      {
+        'title': 'Profile',
+        'color': Colors.brown,
+        'onTap': () {
+          context.push(AppPath.profile);
+        },
+        'icon': ImageConstants.profile, // 🔍 Replace with appropriate icon
+        'comment': 'Report Icon'
+      },
+    ];
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(

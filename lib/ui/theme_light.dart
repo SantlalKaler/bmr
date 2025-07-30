@@ -11,7 +11,7 @@ Color get primaryColorDark => const Color(0xFF64548B);
 
 Color get primaryColorLight => Colors.red.shade200;
 
-Color get scaffoldBackgroundColor => Colors.white;
+Color get scaffoldBackgroundColor => Colors.grey.shade100;
 
 Color get greenColor => const Color(0xFF25D366);
 
@@ -52,8 +52,10 @@ class LightTheme {
             labelStyle:
                 GoogleFonts.roboto(color: Colors.grey.shade600, fontSize: 13),
             hintStyle: GoogleFonts.lato(fontSize: 13),
-            contentPadding: const EdgeInsets.all(15),
             enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(15)),
+            disabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(15)),
             focusedErrorBorder: OutlineInputBorder(

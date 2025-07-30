@@ -1,8 +1,11 @@
 import 'package:bmr/controllers/auth_controller.dart';
+import 'package:bmr/controllers/current_day_task_controller.dart';
 import 'package:bmr/ui/routes/app_routes.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import 'controllers/create_task_controller.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,5 +38,7 @@ class InitialBindings extends Bindings {
   @override
   void dependencies() {
     Get.put(AuthController());
+    Get.put(CurrentDayTaskController());
+    Get.put(CreateTaskController());
   }
 }
