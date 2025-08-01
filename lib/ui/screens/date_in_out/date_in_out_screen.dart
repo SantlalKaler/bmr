@@ -5,8 +5,8 @@ import '../../routes/mobile_routes.dart';
 import '../widgets/top_app_bar.dart';
 
 class DateInOutScreen extends StatefulWidget {
-  const DateInOutScreen({super.key});
-
+  DateInOutScreen({super.key, required this.dayIn});
+  bool dayIn = false;
   @override
   State<DateInOutScreen> createState() => _DateInOutScreenState();
 }

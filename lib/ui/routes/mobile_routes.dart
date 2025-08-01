@@ -1,6 +1,4 @@
 import 'package:bmr/ui/screens/approval/approval_screen.dart';
-import 'package:bmr/ui/screens/create_task/create_task_screen.dart';
-import 'package:bmr/ui/screens/current_day_task/current_day_task_screen.dart';
 import 'package:bmr/ui/screens/date_in_out/date_in_out_screen.dart';
 import 'package:bmr/ui/screens/farmer/create_farmer_screen.dart';
 import 'package:bmr/ui/screens/feedback/feedback_screen.dart';
@@ -18,6 +16,8 @@ import 'package:bmr/ui/screens/profile/profile_screen.dart';
 import 'package:bmr/ui/screens/sampling/create_sampling_screen.dart';
 import 'package:bmr/ui/screens/sampling/direct_sampling.dart';
 import 'package:bmr/ui/screens/sampling/sampling_screen.dart';
+import 'package:bmr/ui/screens/task/create_task_screen.dart';
+import 'package:bmr/ui/screens/task/current_day_task_screen.dart';
 import 'package:bmr/ui/screens/task/task_history_screen.dart';
 import 'package:bmr/ui/screens/task/view_task_screen.dart';
 import 'package:bmr/ui/screens/todo/todo_list_screen.dart';
@@ -35,7 +35,7 @@ import '../screens/splash/splash_screen.dart';
 
 final GoRouter mobileRoutes = GoRouter(
   navigatorKey: Get.key,
-  initialLocation: AppPath.homePath,
+  initialLocation: AppPath.splashPath,
   errorBuilder: (context, state) {
     return const PageNotFound();
   },

@@ -1,8 +1,8 @@
-import 'package:bmr/controllers/current_day_task_controller.dart';
 import 'package:bmr/ui/screens/feedback/sales.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../controllers/task_controller.dart';
 import '../widgets/top_app_bar.dart';
 import 'collection.dart';
 import 'general.dart';
@@ -17,7 +17,7 @@ class FeedbackScreen extends StatefulWidget {
 class _FeedbackScreenState extends State<FeedbackScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  CurrentDayTaskController currentDayTaskController = Get.find();
+  TaskController currentDayTaskController = Get.find();
 
   @override
   void initState() {
@@ -30,8 +30,8 @@ class _FeedbackScreenState extends State<FeedbackScreen>
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CurrentDayTaskController>(
-        init: CurrentDayTaskController(),
+    return GetBuilder<TaskController>(
+        init: TaskController(),
         builder: (controller) {
           return DefaultTabController(
               length: 2,

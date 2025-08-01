@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../../controllers/create_task_controller.dart';
+import '../../../controllers/task_controller.dart';
 import '../widgets/app_choice_chip.dart';
 import '../widgets/top_app_bar.dart';
 
@@ -16,7 +16,7 @@ class CreateTaskScreen extends StatefulWidget {
 }
 
 class _CreateTaskScreenState extends State<CreateTaskScreen> {
-  CreateTaskController createTaskController = Get.find();
+  TaskController createTaskController = Get.find();
   TextEditingController taskDate = TextEditingController();
   TextEditingController customerName = TextEditingController();
   TextEditingController description = TextEditingController();
@@ -24,8 +24,8 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CreateTaskController>(
-        init: CreateTaskController(),
+    return GetBuilder<TaskController>(
+        init: TaskController(),
         builder: (controller) {
           return Scaffold(
             appBar: const PreferredSize(

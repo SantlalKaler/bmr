@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../constants/image_constants.dart';
-import '../../routes/mobile_routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -80,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void handleLogin() {
+  void handleLogin() async {
     if (userNameController.text.isEmpty || passwordController.text.isEmpty) {
       Fluttertoast.showToast(
         msg: "Username or Password cannot be empty",
@@ -88,7 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
         textColor: Colors.white,
       );
     } else {
-      context.pushReplacement(AppPath.homePath);
+      await authController.login(
+          userNameController.text, passwordController.text);
     }
   }
 

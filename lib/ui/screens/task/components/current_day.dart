@@ -1,4 +1,4 @@
-import 'package:bmr/ui/screens/current_day_task/components/single_task.dart';
+import 'package:bmr/ui/screens/task/components/single_task.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 

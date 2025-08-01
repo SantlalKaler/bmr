@@ -1,9 +1,9 @@
-import 'package:bmr/controllers/current_day_task_controller.dart';
 import 'package:bmr/ui/routes/mobile_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../controllers/task_controller.dart' show TaskController;
 import '../widgets/top_app_bar.dart';
 import 'components/current_day.dart';
 
@@ -17,7 +17,7 @@ class CurrentDayTaskScreen extends StatefulWidget {
 class _CurrentDayTaskScreenState extends State<CurrentDayTaskScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  CurrentDayTaskController currentDayTaskController = Get.find();
+  TaskController currentDayTaskController = Get.find();
 
   @override
   void initState() {
@@ -30,14 +30,14 @@ class _CurrentDayTaskScreenState extends State<CurrentDayTaskScreen>
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CurrentDayTaskController>(
-        init: CurrentDayTaskController(),
+    return GetBuilder<TaskController>(
+        init: TaskController(),
         builder: (controller) {
           return DefaultTabController(
               length: 2,
               child: Scaffold(
                 appBar: const PreferredSize(
-                  preferredSize: const Size(double.infinity, 120),
+                  preferredSize: Size(double.infinity, 120),
                   child: TopAppBar(
                     title: "Tasks",
                   ),

@@ -3,7 +3,7 @@ import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../controllers/current_day_task_controller.dart';
+import '../../../controllers/task_controller.dart';
 import '../widgets/top_app_bar.dart';
 
 class ToDoListScreen extends StatefulWidget {
@@ -16,7 +16,7 @@ class ToDoListScreen extends StatefulWidget {
 class _ToDoListScreenState extends State<ToDoListScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  CurrentDayTaskController currentDayTaskController = Get.find();
+  TaskController currentDayTaskController = Get.find();
 
   @override
   void initState() {
@@ -29,8 +29,8 @@ class _ToDoListScreenState extends State<ToDoListScreen>
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CurrentDayTaskController>(
-        init: CurrentDayTaskController(),
+    return GetBuilder<TaskController>(
+        init: TaskController(),
         builder: (controller) {
           return DefaultTabController(
             length: 2,

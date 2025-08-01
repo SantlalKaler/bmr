@@ -1,7 +1,7 @@
-import 'package:bmr/controllers/current_day_task_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../controllers/task_controller.dart';
 import '../widgets/top_app_bar.dart';
 import 'components/technical.dart';
 
@@ -15,7 +15,7 @@ class TechnicalQuriesScreen extends StatefulWidget {
 class _TechnicalQuriesScreenState extends State<TechnicalQuriesScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  CurrentDayTaskController currentDayTaskController = Get.find();
+  TaskController currentDayTaskController = Get.find();
 
   @override
   void initState() {
@@ -28,8 +28,8 @@ class _TechnicalQuriesScreenState extends State<TechnicalQuriesScreen>
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CurrentDayTaskController>(
-        init: CurrentDayTaskController(),
+    return GetBuilder<TaskController>(
+        init: TaskController(),
         builder: (controller) {
           return DefaultTabController(
               length: 2,

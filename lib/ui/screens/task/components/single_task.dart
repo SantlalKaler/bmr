@@ -1,7 +1,8 @@
-import 'package:bmr/ui/screens/current_day_task/components/visit_details_dialog.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+
+import 'visit_details_dialog.dart';
 
 class SingleTask extends StatefulWidget {
   const SingleTask({super.key});
