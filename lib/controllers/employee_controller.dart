@@ -163,23 +163,6 @@ class EmployeeController extends GetxController {
     }
   }
 
-  Future resetEmployeeSession() async {
-    try {
-      var data = {
-        "emp_id": "",
-        "username": "",
-        "password": "",
-      };
-      await apiService.post(AppUrls.resetemployeeloginapi, data).then(
-        (response) {
-          Constant.printValue("Response of Login api is :  $response");
-        },
-      );
-    } finally {
-      setLoading();
-    }
-  }
-
   Future sendCustomerEmail() async {
     try {
       var data = {

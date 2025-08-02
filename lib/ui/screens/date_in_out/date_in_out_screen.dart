@@ -5,8 +5,8 @@ import '../../routes/mobile_routes.dart';
 import '../widgets/top_app_bar.dart';
 
 class DateInOutScreen extends StatefulWidget {
-  DateInOutScreen({super.key, required this.dayIn});
-  bool dayIn = false;
+  const DateInOutScreen({super.key, required this.dayIn});
+  final bool dayIn;
   @override
   State<DateInOutScreen> createState() => _DateInOutScreenState();
 }
@@ -34,7 +34,9 @@ class _DateInOutScreenState extends State<DateInOutScreen> {
               controller: meterReadingController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: "Starting Meter Reading",
+                hintText: widget.dayIn
+                    ? "Starting Meter Reading"
+                    : "Closing Meter Reading",
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -72,9 +74,9 @@ class _DateInOutScreenState extends State<DateInOutScreen> {
                   ],
                 ),
                 alignment: Alignment.center,
-                child: const Text(
-                  "DAY IN",
-                  style: TextStyle(
+                child: Text(
+                  !widget.dayIn ? "DAY OUT" : "DAY IN",
+                  style: const TextStyle(
                     color: Colors.blue,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

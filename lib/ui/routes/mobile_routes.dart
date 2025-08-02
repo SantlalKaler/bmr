@@ -56,10 +56,12 @@ final GoRouter mobileRoutes = GoRouter(
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
-      path: AppPath.dateInOutPath,
-      name: AppPath.dateInOutPath,
-      builder: (context, state) => const DateInOutScreen(),
-    ),
+        path: AppPath.dateInOutPath,
+        name: AppPath.dateInOutPath,
+        builder: (context, state) {
+          final dayIn = state.extra as bool? ?? false; // fallback to false
+          return DateInOutScreen(dayIn: dayIn);
+        }),
     GoRoute(
       path: AppPath.currentDayPath,
       name: AppPath.currentDayPath,

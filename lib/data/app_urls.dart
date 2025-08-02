@@ -1,5 +1,5 @@
 class AppUrls {
-  static const baseUrl = "http://your-dev-server.com/api/";
+  static const baseUrl = "https://www.devbmr.webperfection.in/";
   static const login = "index.php/employee/loginapi";
   static const logout = "index.php/employee/logout";
   static const createAttendance = "index.php/employee/createattendance";

@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ui/constants/constant.dart';
+import 'model/user.dart';
 
 class PrefData {
   static String prefName = "com.example.learn_management_app_ui";
@@ -14,17 +15,6 @@ class PrefData {
   static String settings = "settings";
   static String authToken = "authToken";
   static String userId = "userId";
-
-  static setIsIntro(bool sizes) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(isIntro, sizes);
-  }
-
-  static getIsIntro() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool intValue = prefs.getBool(isIntro) ?? true;
-    return intValue;
-  }
 
   static getLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -54,5 +44,22 @@ class PrefData {
     var tokenValue = prefs.getString(deviceToken) ?? '';
     Constant.printValue("Token is : $tokenValue");
     return tokenValue;
+  }
+
+  static Future<void> saveUser(User userObj) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userJson = userToJson(userObj); // Convert User to JSON string
+    await prefs.setString(user, userJson);
+    getUser();
+  }
+
+  /// Get user object
+  static Future<User?> getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userJson = prefs.getString(user);
+
+    Constant.printValue("User Saved in local is : $userJson");
+    if (userJson == null || userJson.isEmpty) return null;
+    return userFromJson(userJson);
   }
 }

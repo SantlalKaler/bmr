@@ -211,7 +211,7 @@ class HomeScreen extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        context.push(AppPath.dateInOutPath);
+                        context.push(AppPath.dateInOutPath, extra: true);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -250,7 +250,7 @@ class HomeScreen extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        context.push(AppPath.dateInOutPath);
+                        context.push(AppPath.dateInOutPath, extra: false);
                       },
                       child: Container(
                         decoration: BoxDecoration(
