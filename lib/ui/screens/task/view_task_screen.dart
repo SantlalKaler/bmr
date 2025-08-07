@@ -1,7 +1,5 @@
-import 'package:bmr/ui/routes/mobile_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../controllers/task_controller.dart';
 import '../widgets/top_app_bar.dart';
@@ -41,18 +39,6 @@ class _ViewTaskScreenState extends State<ViewTaskScreen>
                     title: "View Task",
                   ),
                 ),
-                floatingActionButton: controller.tabIndex.value == 0
-                    ? FloatingActionButton(
-                        backgroundColor: Colors.white,
-                        onPressed: () {
-                          context.push(AppPath.creteTaskPath);
-                        },
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.black,
-                        ),
-                      )
-                    : null,
                 body: Column(
                   children: [
                     TabBar(

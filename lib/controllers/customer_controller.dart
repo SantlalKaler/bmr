@@ -1,21 +1,52 @@
+import 'dart:convert';
+
+import 'package:bmr/controllers/user_controller.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
 import '../ui/constants/constant.dart';
+import '../ui/model/choice_chip_item.dart';
 
 class CustomerController extends GetxController {
   RxBool loading = false.obs;
+  RxBool createFarmerSuccess = false.obs;
+  String? errorMessage;
 
   ApiService apiService = ApiService();
 
+  Rxn<String> selectedZone = Rxn<String>();
+  Rxn<String> selectedState = Rxn<String>();
+  Rxn<String> selectedCity = Rxn<String>();
+  RxInt selectedOwnOthers = 0.obs;
+  RxInt selectedFarmerDealer = 0.obs;
+  RxInt selectedActiveInactive = 0.obs;
+
+  List<ChoiceChipItem> ownOthers = [
+    ChoiceChipItem(title: "OWN"),
+    ChoiceChipItem(title: "OTHERS"),
+  ];
+  List<ChoiceChipItem> farmerDealer = [
+    ChoiceChipItem(title: "FARMERS"),
+    ChoiceChipItem(title: "DEALERS"),
+  ];
+  List<ChoiceChipItem> activeInactive = [
+    ChoiceChipItem(title: "ACTIVE"),
+    ChoiceChipItem(title: "INACTIVE"),
+  ];
+
   setLoading() => loading.value = !loading.value;
 
-  Future getCustomerList(String empId) async {
+  UserController userController = Get.find();
+
+  Future getCustomerList() async {
+    setLoading();
+    var user = userController.user;
     try {
-      var data = {
-        "login_id": empId,
-      };
+      var data = dio.FormData.fromMap({
+        "login_id": user!.eId,
+      });
       await apiService.post(AppUrls.getCustomerList, data).then(
         (response) {
           Constant.printValue("Response of getCustomerList api is : $response");
@@ -41,8 +72,9 @@ class CustomerController extends GetxController {
     required String customerOf,
     required String status,
   }) async {
+    setLoading();
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "contact_no": contactNo,
         "customercategory": category,
         "firstname": firstname,
@@ -56,10 +88,23 @@ class CustomerController extends GetxController {
         "cust_type": custType,
         "customerof": customerOf,
         "status": status,
-      };
+      });
       await apiService.post(AppUrls.createCustomer, data).then(
         (response) {
-          Constant.printValue("Response of createCustomer api is : $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            if (jsonData['success'] == 1) {
+              createFarmerSuccess.value = true;
+              errorMessage = null;
+            } else {
+              createFarmerSuccess.value = false;
+              errorMessage = jsonData['success_message'];
+            }
+          }
         },
       );
     } finally {

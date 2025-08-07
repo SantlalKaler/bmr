@@ -6,34 +6,19 @@ import 'model/user.dart';
 class PrefData {
   static String prefName = "com.example.learn_management_app_ui";
 
-  static String isIntro = "${prefName}isIntro";
-  static String inSignIn = "${prefName}isSignIn";
   static String user = "user";
   static String deviceToken = "deviceToken";
-  static String appsFlyer = "appsFlyer";
-  static String location = "location";
-  static String settings = "settings";
-  static String authToken = "authToken";
-  static String userId = "userId";
 
-  static getLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(inSignIn) ?? false;
-  }
-
-  static setLoginStatus(bool isFav) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool(inSignIn, isFav);
-  }
+  static String checkInId = "checkInId";
 
   static clearUser() async {
-    var token = await getDeviceToken();
+    // var token = await getDeviceToken();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.clear();
-    saveDeviceToken(token);
-    // saveUserAddress(address!);
+    // saveDeviceToken(token);
   }
 
+  // token
   static saveDeviceToken(String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(deviceToken, value);
@@ -44,6 +29,19 @@ class PrefData {
     var tokenValue = prefs.getString(deviceToken) ?? '';
     Constant.printValue("Token is : $tokenValue");
     return tokenValue;
+  }
+
+  // check in id
+  static saveCheckInId(String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(checkInId, value);
+  }
+
+  static Future<String> getCheckInId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var value = prefs.getString(checkInId) ?? '';
+    Constant.printValue("check in id is : $value");
+    return value;
   }
 
   static Future<void> saveUser(User userObj) async {

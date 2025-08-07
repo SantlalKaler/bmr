@@ -11,14 +11,14 @@ import '../../elements/textfield_with_dropdown_suggestion.dart';
 import '../widgets/app_choice_chip.dart';
 import '../widgets/top_app_bar.dart';
 
-class CreateTaskScreen extends StatefulWidget {
-  const CreateTaskScreen({super.key});
+class AssignTaskScreen extends StatefulWidget {
+  const AssignTaskScreen({super.key});
 
   @override
-  State<CreateTaskScreen> createState() => _CreateTaskScreenState();
+  State<AssignTaskScreen> createState() => _AssignTaskScreenState();
 }
 
-class _CreateTaskScreenState extends State<CreateTaskScreen> {
+class _AssignTaskScreenState extends State<AssignTaskScreen> {
   TaskController createTaskController = Get.find();
   TextEditingController taskDate = TextEditingController();
   TextEditingController customerName = TextEditingController();
@@ -42,7 +42,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             appBar: const PreferredSize(
               preferredSize: Size(double.infinity, 120),
               child: TopAppBar(
-                title: "Create Task",
+                title: "Assign Task",
               ),
             ),
             floatingActionButton: Obx(() => Container(
@@ -96,6 +96,16 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                       decoration: const InputDecoration(
                         hintText: "Task Date",
                       ),
+                    ),
+                  ),
+                  const Gap(10),
+                  Obx(
+                    () => TextFieldWithDropdownSuggestion(
+                      list: const ['Customer 1', 'Customer 2', 'Customer 3'],
+                      controller: customerName,
+                      hintText: customerController.loading.isTrue
+                          ? "Loading data..."
+                          : 'Assign To',
                     ),
                   ),
                   const Gap(10),

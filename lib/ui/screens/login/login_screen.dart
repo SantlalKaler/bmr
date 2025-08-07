@@ -107,8 +107,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (authController.loginSuccess.isTrue) {
         Fluttertoast.showToast(
           msg: "Logic Successfully",
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
         );
         if (context.mounted) {
           context.pushReplacement(AppPath.homePath);

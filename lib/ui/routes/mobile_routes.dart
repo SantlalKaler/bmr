@@ -16,6 +16,7 @@ import 'package:bmr/ui/screens/profile/profile_screen.dart';
 import 'package:bmr/ui/screens/sampling/create_sampling_screen.dart';
 import 'package:bmr/ui/screens/sampling/direct_sampling.dart';
 import 'package:bmr/ui/screens/sampling/sampling_screen.dart';
+import 'package:bmr/ui/screens/task/assign_task_screen.dart';
 import 'package:bmr/ui/screens/task/create_task_screen.dart';
 import 'package:bmr/ui/screens/task/current_day_task_screen.dart';
 import 'package:bmr/ui/screens/task/task_history_screen.dart';
@@ -60,7 +61,7 @@ final GoRouter mobileRoutes = GoRouter(
         name: AppPath.dateInOutPath,
         builder: (context, state) {
           final dayIn = state.extra as bool? ?? false; // fallback to false
-          return DateInOutScreen(dayIn: dayIn);
+          return DayInOutScreen(dayIn: dayIn);
         }),
     GoRoute(
       path: AppPath.currentDayPath,
@@ -192,6 +193,11 @@ final GoRouter mobileRoutes = GoRouter(
       name: AppPath.todoList,
       builder: (context, state) => const ToDoListScreen(),
     ),
+    GoRoute(
+      path: AppPath.assignTask,
+      name: AppPath.assignTask,
+      builder: (context, state) => const AssignTaskScreen(),
+    ),
   ],
 );
 
@@ -226,4 +232,5 @@ class AppPath {
   static String approval = "/approval";
   static String createFarmer = "/createFarmer";
   static String todoList = "/todoList";
+  static String assignTask = "/assignTask";
 }

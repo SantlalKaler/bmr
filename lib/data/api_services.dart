@@ -39,7 +39,8 @@ class ApiService {
       try {
         final response = await _dio.get(
             customBaseURI == null ? (AppUrls.baseUrl + path) : path,
-            options: Options(headers: headers, sendTimeout: timeout));
+            options:
+                Options(headers: headers, sendTimeout: Duration(minutes: 5)));
         return response;
       } catch (error) {
         _handleError(error);
@@ -77,7 +78,8 @@ class ApiService {
                 customBaseURI == null ? (AppUrls.baseUrl + path) : path,
                 queryParameters: queryParam,
                 data: data,
-                options: Options(headers: headers, sendTimeout: timeout))
+                options: Options(
+                    headers: headers, sendTimeout: const Duration(minutes: 5)))
             : await _dio.post(
                 customBaseURI == null ? (AppUrls.baseUrl + path) : path,
                 data: data,

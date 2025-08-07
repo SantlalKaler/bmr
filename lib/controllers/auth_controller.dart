@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/data/api_services.dart';
 import 'package:bmr/data/pref_data.dart';
 import 'package:bmr/ui/constants/strings_constants.dart';
@@ -19,9 +20,16 @@ class AuthController extends GetxController {
   String? errorMessage;
 
   ApiService apiService = ApiService();
+  User? user;
 
   setLoading() => loading.value = !loading.value;
   setDialogLoading() => dialogLoading.value = !dialogLoading.value;
+
+  @override
+  void onInit() {
+    getUser();
+    super.onInit();
+  }
 
   Future login(String username, String password) async {
     setLoading();
@@ -31,7 +39,7 @@ class AuthController extends GetxController {
           {"username": username, "password": password, "version_no": "2.7"});
 
       await apiService.post(AppUrls.login, data).then(
-        (response) {
+        (response) async {
           if (response != null) {
             var jsonData = response.data;
             if (jsonData is String) {
@@ -41,7 +49,11 @@ class AuthController extends GetxController {
             var user = User.fromJson(jsonData);
             if (user.success == "1") {
               // save user in local
-              PrefData.saveUser(user);
+              if (rememberMe.isTrue) {
+                await PrefData.saveUser(user);
+                UserController userController = Get.find();
+                await userController.getUser();
+              }
               loginSuccess.value = true;
             } else {
               errorMessage = jsonData['val'];
@@ -108,5 +120,9 @@ class AuthController extends GetxController {
     } finally {
       setDialogLoading();
     }
+  }
+
+  Future getUser() async {
+    user = await PrefData.getUser();
   }
 }

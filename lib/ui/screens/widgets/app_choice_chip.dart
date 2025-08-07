@@ -36,11 +36,13 @@ class AppChoiceChip extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        Gap(spaceBetweenTitleAndChip ?? DimensConstants.screenPadding),
+        if (title.isNotEmpty)
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        if (title.isNotEmpty)
+          Gap(spaceBetweenTitleAndChip ?? DimensConstants.screenPadding),
         Wrap(
           children: List<Widget>.generate(
             choices.length,

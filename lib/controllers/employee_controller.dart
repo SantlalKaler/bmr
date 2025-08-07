@@ -1,29 +1,79 @@
+import 'dart:convert';
+
+import 'package:bmr/controllers/auth_controller.dart';
+import 'package:bmr/data/pref_data.dart';
+import 'package:bmr/ui/constants/strings_constants.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
+import '../data/model/user.dart';
 import '../ui/constants/constant.dart';
+import 'map_controller.dart';
 
 class EmployeeController extends GetxController {
   RxBool loading = false.obs;
+  RxBool checkInOrCheckOutSuccess = false.obs;
+  String? errorMessage;
 
   ApiService apiService = ApiService();
 
   setLoading() => loading.value = !loading.value;
 
-  Future attendanceCheckIn() async {
+  AuthController authController = Get.find();
+  User? user;
+
+  @override
+  void onInit() {
+    getUser();
+    super.onInit();
+  }
+
+  Future getUser() async {
+    user = await PrefData.getUser();
+  }
+
+  void resetValues() {
+    checkInOrCheckOutSuccess.value = false;
+    errorMessage = null;
+  }
+
+  Future attendanceCheckIn(String startMeterReading) async {
+    resetValues();
+    setLoading();
+
+    // get users current location
+    MapController mapController = Get.find();
+    Position? position = await mapController.getCurrentLocation();
     try {
-      var data = {
-        "empid": "",
+      var data = dio.FormData.fromMap({
+        "empid": user!.eId,
         "check_in": "",
         "geo_checkin": "",
-        "starting_meter": ""
-      };
+        "starting_meter": startMeterReading
+      });
 
-      Constant.printValue("Login data is $data");
       await apiService.post(AppUrls.createAttendance, data).then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              Constant.printValue("Json data is string");
+              jsonData = json.decode(jsonData);
+            }
+
+            if (jsonData[StringConstants.apiSuccess].toString() ==
+                StringConstants.apiSuccessStatus) {
+              checkInOrCheckOutSuccess.value = true;
+
+              // save check in updated id
+              PrefData.saveCheckInId(jsonData['update_id']);
+            } else {
+              errorMessage = jsonData['val'];
+            }
+          }
         },
       );
     } finally {
@@ -31,20 +81,34 @@ class EmployeeController extends GetxController {
     }
   }
 
-  Future attendanceCheckOut() async {
+  Future attendanceCheckOut(String closingMeter) async {
+    resetValues();
+    setLoading();
+    var updateId = await PrefData.getCheckInId();
     try {
-      var data = {
-        "empid": "",
-        "update_id": "",
+      var data = dio.FormData.fromMap({
+        "empid": user!.eId,
+        "update_id": updateId,
         "check_out": "",
         "geo_checkout": "",
-        "closing_meter": ""
-      };
+        "closing_meter": closingMeter
+      });
 
-      Constant.printValue("Login data is $data");
       await apiService.post(AppUrls.updateAttendance, data).then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            if (jsonData[StringConstants.apiSuccess].toString() ==
+                StringConstants.apiSuccessStatus) {
+              checkInOrCheckOutSuccess.value = true;
+            } else {
+              errorMessage = jsonData['val'];
+            }
+          }
         },
       );
     } finally {

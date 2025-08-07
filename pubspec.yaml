@@ -21,11 +21,12 @@ dependencies:
   go_router: ^13.0.0
   shared_preferences: ^2.0.15
   intl: ^0.20.2
+  app_settings: ^6.1.1
 
   #network
   connectivity_plus: ^5.0.2
-  dio: ^4.0.6
-  pretty_dio_logger: ^1.2.0-beta-
+  dio: ^5.8.0+1
+  pretty_dio_logger: ^1.4.0
 
   #ui
   cached_network_image: ^3.3.0
@@ -36,6 +37,15 @@ dependencies:
   google_fonts: ^6.2.1
   fluttertoast: ^8.2.12
   another_flushbar: ^1.12.30
+
+  #map
+  google_maps_flutter: ^2.12.3
+  google_places_flutter: ^2.1.0
+  location: ^8.0.1
+  geolocator: ^14.0.2
+  geocoding: ^4.0.0
+  permission_handler: ^12.0.1
+
 
 
 

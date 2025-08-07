@@ -1,4 +1,8 @@
+import 'package:bmr/controllers/user_controller.dart';
+import 'package:bmr/data/model/user.dart';
+import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/routes/mobile_routes.dart';
+import 'package:bmr/utils/date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -17,15 +21,37 @@ class CurrentDayTaskScreen extends StatefulWidget {
 class _CurrentDayTaskScreenState extends State<CurrentDayTaskScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  TaskController currentDayTaskController = Get.find();
+  TaskController taskController = Get.find();
+  UserController userController = Get.find();
+  User? user;
 
   @override
   void initState() {
+    super.initState();
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
-      currentDayTaskController.changeTabIndex(tabController.index);
+      taskController.changeTabIndex(tabController.index);
+      getTasks();
     });
-    super.initState();
+    user = userController.user;
+    getTasks();
+  }
+
+  void getTasks() async {
+    final empId = user!.eId ?? "";
+    final regionId = user!.regionId?[0] ?? "";
+    final fromDate =
+        DateConverter.convertDate(DateTime.now(), format: "dd-MM-yyyy");
+    final toDate =
+        DateConverter.convertDate(DateTime.now(), format: "dd-MM-yyyy");
+
+    if (tabController.index == 0) {
+      await taskController.getCurrentDayTaskList(
+          empId: empId, regionId: regionId, fromDate: fromDate, toDate: toDate);
+    } else {
+      await taskController.getPendingTaskApprovalList(
+          empId: empId, regionId: regionId, fromDate: fromDate, toDate: toDate);
+    }
   }
 
   @override
@@ -63,15 +89,19 @@ class _CurrentDayTaskScreenState extends State<CurrentDayTaskScreen>
                         Tab(text: "Pending Tasks"),
                       ],
                     ),
-                    Expanded(
-                      child: TabBarView(
-                        controller: tabController,
-                        children: const [
-                          CurrentDay(),
-                          Center(child: Text("Tomorrow's Tasks")),
-                        ],
-                      ),
-                    ),
+                    Obx(
+                      () => taskController.loading.isTrue
+                          ? const Center(child: AppLoader())
+                          : Expanded(
+                              child: TabBarView(
+                                controller: tabController,
+                                children: const [
+                                  CurrentDay(),
+                                  Center(child: Text("Tomorrow's Tasks")),
+                                ],
+                              ),
+                            ),
+                    )
                   ],
                 ),
               ));

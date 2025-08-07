@@ -1,9 +1,15 @@
+import 'dart:io';
+
+import 'package:bmr/controllers/sampling_controller.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
+import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/screens/widgets/top_app_bar.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class CreateSamplingScreen extends StatefulWidget {
   const CreateSamplingScreen({super.key});
@@ -13,10 +19,21 @@ class CreateSamplingScreen extends StatefulWidget {
 }
 
 class _CreateSamplingScreenState extends State<CreateSamplingScreen> {
+  SamplingController samplingController = Get.find();
+  TextEditingController seeds = TextEditingController();
+  TextEditingController stockDate = TextEditingController();
+  TextEditingController samplingDate = TextEditingController();
+  TextEditingController doc = TextEditingController();
+  TextEditingController dailyFeed = TextEditingController();
+  TextEditingController abw = TextEditingController();
+  TextEditingController adg = TextEditingController();
+  TextEditingController ph = TextEditingController();
+  TextEditingController salinity = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: PreferredSize(
+        appBar: const PreferredSize(
           preferredSize: Size(double.infinity, 120),
           child: TopAppBar(
             title: "Create Sampling",
@@ -30,59 +47,106 @@ class _CreateSamplingScreenState extends State<CreateSamplingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
-                    decoration: InputDecoration(
+                    controller: seeds,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
                       hintText: "Seeds(in Million)",
                     ),
                   ),
-                  Gap(10),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: "Stocking Date",
+                  const Gap(10),
+                  GestureDetector(
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(), // restrict past dates
+                        lastDate: DateTime(2100), // adjust as needed
+                      );
+
+                      if (pickedDate != null) {
+                        stockDate.text = DateFormat('MMM dd yyyy')
+                            .format(pickedDate); // or use your preferred format
+                      }
+                    },
+                    child: TextField(
+                      controller: stockDate,
+                      enabled: false,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        hintText: "Stocking Date",
+                      ),
                     ),
                   ),
-                  Gap(10),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: "Sampling Date",
+                  const Gap(10),
+                  GestureDetector(
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(), // restrict past dates
+                        lastDate: DateTime(2100), // adjust as needed
+                      );
+
+                      if (pickedDate != null) {
+                        samplingDate.text = DateFormat('MMM dd yyyy')
+                            .format(pickedDate); // or use your preferred format
+                      }
+                    },
+                    child: TextField(
+                      controller: samplingDate,
+                      enabled: false,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        hintText: "Sampling Date",
+                      ),
                     ),
                   ),
-                  Gap(10),
+                  const Gap(10),
                   TextField(
-                    decoration: InputDecoration(
+                    controller: doc,
+                    decoration: const InputDecoration(
                       hintText: "DOC",
                     ),
                   ),
-                  Gap(10),
+                  const Gap(10),
                   TextField(
-                    decoration: InputDecoration(
-                      hintText: "Dairy Feed(kg)",
+                    controller: dailyFeed,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: "Daily Feed(kg)",
                     ),
                   ),
-                  Gap(10),
+                  const Gap(10),
                   TextField(
-                    decoration: InputDecoration(
+                    controller: abw,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
                       hintText: "ABW(g)",
                     ),
                   ),
-                  Gap(10),
+                  const Gap(10),
                   TextField(
-                    decoration: InputDecoration(
+                    controller: adg,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
                       hintText: "ADG(g)",
                     ),
                   ),
-                  Gap(10),
+                  const Gap(10),
                   TextField(
-                    decoration: InputDecoration(
+                    controller: ph,
+                    decoration: const InputDecoration(
                       hintText: "PH",
                     ),
                   ),
-                  Gap(10),
+                  const Gap(10),
                   TextField(
-                    decoration: InputDecoration(
+                    controller: salinity,
+                    decoration: const InputDecoration(
                       hintText: "Salinity",
                     ),
                   ),
-                  Gap(20),
+                  const Gap(20),
                   Text(
                     "Add Photo",
                     style: Theme.of(context)
@@ -90,29 +154,141 @@ class _CreateSamplingScreenState extends State<CreateSamplingScreen> {
                         .titleMedium
                         ?.copyWith(color: Colors.black),
                   ),
-                  Gap(10),
-                  GestureDetector(
-                      onTap: () {},
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.camera_alt,
-                            size: 30,
-                            color: primaryColor,
-                          ),
-                          Text("Capture")
-                        ],
-                      )),
-                  Gap(30),
+                  const Gap(10),
+                  imagePath != null
+                      ? Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                File(imagePath!),
+                                width: 150,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Positioned(
+                              right: -10,
+                              top: -10,
+                              child: IconButton(
+                                icon:
+                                    const Icon(Icons.close, color: Colors.red),
+                                onPressed: removeImage,
+                              ),
+                            )
+                          ],
+                        )
+                      : GestureDetector(
+                          onTap: () {
+                            showImageOptions();
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.camera_alt,
+                                size: 30,
+                                color: primaryColor,
+                              ),
+                              const Text("Capture")
+                            ],
+                          )),
+                  const Gap(30),
                   ElevatedButton(
                       onPressed: () {
-                        context.pop();
+                        createSampling();
                       },
-                      child: Text("SUBMIT"))
+                      child: samplingController.loading.isTrue
+                          ? const AppLoader()
+                          : const Text("SUBMIT"))
                 ]),
           ),
         ));
+  }
+
+  showImageOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  pickFromCamera();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  pickFromGallery();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void removeImage() {
+    setState(() {
+      imagePath = null;
+    });
+  }
+
+  final ImagePicker picker = ImagePicker();
+  String? imagePath;
+
+  Future<void> pickFromCamera() async {
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      print("Picked from camera: ${image.path}");
+      setState(() {
+        imagePath = image.path;
+      });
+    }
+  }
+
+  Future<void> pickFromGallery() async {
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      print("Picked from gallery: ${image.path}");
+      setState(() {
+        imagePath = image.path;
+      });
+    }
+  }
+
+  createSampling() async {
+    await samplingController.createSamplingWithFile(
+        taskId: "",
+        pondId: "",
+        custId: "",
+        cycleId: "",
+        empId: "",
+        newCycle: "",
+        cultureSeedDate: "",
+        doc: doc.text,
+        stockingDate: stockDate.text,
+        seedStocking: seeds.text,
+        ph: ph.text,
+        abw: abw.text,
+        salinity: salinity.text,
+        samplingDate: samplingDate.text,
+        dailyFeed: dailyFeed.text,
+        adg: adg.text,
+        filePath: imagePath ?? "");
   }
 }

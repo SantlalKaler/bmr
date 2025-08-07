@@ -94,12 +94,13 @@ class SamplingController extends GetxController {
     required String request,
   }) async {
     try {
-      var data = {
+      setLoading();
+      var data = dio.FormData.fromMap({
         "cust_id": custId,
         "cycle_id": cycleId,
         "pond_id": pondId,
         "request": request,
-      };
+      });
       await apiService.post(AppUrls.getSampleHistory, data).then(
         (response) {
           Constant.printValue("Response of getSampleHistory API: $response");
@@ -130,6 +131,7 @@ class SamplingController extends GetxController {
     required String filePath,
   }) async {
     try {
+      setLoading();
       var formData = dio.FormData.fromMap({
         "task_id": taskId,
         "pond_id": pondId,
@@ -147,15 +149,13 @@ class SamplingController extends GetxController {
         "sampling_date": samplingDate,
         "daily_feed": dailyFeed,
         "adg": adg,
-        "sampling_file": await dio.MultipartFile.fromFile(filePath),
+        "sampling_file":
+            filePath.isEmpty ? "" : await dio.MultipartFile.fromFile(filePath),
       });
 
       await apiService.post(AppUrls.createSampling, formData).then(
-        (response) {
-          Constant.printValue(
-              "Response of createSamplingWithFile API: $response");
-        },
-      );
+            (response) {},
+          );
     } finally {
       setLoading();
     }

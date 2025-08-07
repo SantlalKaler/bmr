@@ -1,8 +1,11 @@
+import 'package:bmr/controllers/auth_controller.dart';
+import 'package:bmr/data/pref_data.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
 import 'package:bmr/ui/constants/image_constants.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -18,13 +21,15 @@ class HomeScreen extends StatelessWidget {
         title: const Text('Are you sure want to logout?'),
         actions: [
           TextButton(
-            onPressed: () => context.pop(), // No
+            onPressed: () {
+              context.pop();
+            }, // No
             child: const Text('No'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              context.pushReplacement(AppPath.loginPath); // Navigate to login
+              PrefData.clearUser();
+              context.pushReplacement(AppPath.loginPath);
             },
             child: const Text('Yes'),
           ),
@@ -35,6 +40,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AuthController authController = Get.find();
     final List<Map<String, dynamic>> dashboardTiles = [
       {
         'title': 'Current Day Task',
@@ -59,7 +65,7 @@ class HomeScreen extends StatelessWidget {
         'title': 'Assign Task',
         'color': Colors.orange,
         'onTap': () {
-          context.push(AppPath.creteTaskPath);
+          context.push(AppPath.assignTask);
         },
         'icon': ImageConstants.assignTask, // 🔍 Replace with appropriate icon
         'comment': 'Leave Icon'
@@ -183,11 +189,11 @@ class HomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Hello, Xa Kaler",
+                    "Hello, ${authController.user?.empName}",
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Text(
-                    DateFormat('dd-MM-yyyy').format(DateTime.now()).toString(),
+                    DateFormat('dd MMM, EEE').format(DateTime.now()).toString(),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],

@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:bmr/controllers/user_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../constants/image_constants.dart';
@@ -14,15 +16,21 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  UserController userController = Get.find();
+
   @override
   void initState() {
     moveToNext();
     super.initState();
   }
 
-  moveToNext() async {
-    Timer(const Duration(milliseconds: 1000), () {
-      GoRouter.of(context).pushReplacement(AppPath.loginPath);
+  moveToNext() {
+    Timer(const Duration(milliseconds: 2000), () async {
+      if (userController.user == null) {
+        context.pushReplacement(AppPath.loginPath);
+      } else {
+        context.pushReplacement(AppPath.homePath);
+      }
     });
   }
 

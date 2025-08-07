@@ -3,9 +3,11 @@ import 'package:bmr/controllers/conectivity_controller.dart';
 import 'package:bmr/controllers/custom_controller.dart';
 import 'package:bmr/controllers/customer_controller.dart';
 import 'package:bmr/controllers/employee_controller.dart';
+import 'package:bmr/controllers/map_controller.dart';
 import 'package:bmr/controllers/pond_controller.dart';
 import 'package:bmr/controllers/sampling_controller.dart';
 import 'package:bmr/controllers/todo_controller.dart';
+import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/ui/routes/app_routes.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +51,7 @@ class InitialBindings extends Bindings {
   void dependencies() {
     Get.put(ConnectivityController());
     Get.put(AuthController());
+    Get.put(UserController());
     Get.put(CustomController());
     Get.put(CustomerController());
     Get.put(EmployeeController());
@@ -60,5 +63,6 @@ class InitialBindings extends Bindings {
     Get.put(SamplingController());
     Get.put(TaskController());
     Get.put(TodoController());
+    Get.put(MapController());
   }
 }

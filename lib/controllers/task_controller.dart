@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
@@ -128,13 +129,14 @@ class TaskController extends GetxController {
     required String fromDate,
     required String toDate,
   }) async {
+    setLoading();
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "emp_id": empId,
         "region_id": regionId,
         "from_date": fromDate,
         "to_date": toDate,
-      };
+      });
       await apiService.post(AppUrls.getCurrentDayTaskList, data).then(
         (response) {
           Constant.printValue(
