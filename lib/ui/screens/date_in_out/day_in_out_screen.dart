@@ -24,8 +24,6 @@ class _DayInOutScreenState extends State<DayInOutScreen> {
 
   @override
   void initState() {
-    mapController.getCurrentLocation();
-    mapController.getCurrentLocationB();
     super.initState();
   }
 
@@ -33,8 +31,7 @@ class _DayInOutScreenState extends State<DayInOutScreen> {
     await employeeController.attendanceCheckIn(meterReadingController.text);
 
     if (employeeController.checkInOrCheckOutSuccess.isTrue) {
-      Fluttertoast.showToast(msg: "Check in success");
-      context.pop();
+      showSuccessCheckInDialog();
     } else {
       Fluttertoast.showToast(
           msg: employeeController.errorMessage ??
@@ -53,6 +50,28 @@ class _DayInOutScreenState extends State<DayInOutScreen> {
           msg: employeeController.errorMessage ??
               StringConstants.somethingWentWrong);
     }
+  }
+
+  void showSuccessCheckInDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: const Text(
+          "Your Attendance has been logged in successfully, and your current day schedule has been created..!",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.pop();
+              context.pop();
+            },
+            child: const Text("OK",
+                style: TextStyle(fontSize: 16, color: Colors.blue)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -97,16 +116,23 @@ class _DayInOutScreenState extends State<DayInOutScreen> {
           Obx(
             () => Center(
               child: employeeController.loading.isTrue
-                  ? const AppLoader()
+                  ? AppLoader(
+                      info: employeeController.errorMessage,
+                    )
                   : GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         if (meterReadingController.text.isEmpty) {
                           Fluttertoast.showToast(msg: "Enter meter reading");
                         } else {
-                          if (widget.dayIn) {
-                            checkIn();
+                          if (await mapController.locationServiceEnabled()) {
+                            if (widget.dayIn) {
+                              checkIn();
+                            } else {
+                              checkOut();
+                            }
                           } else {
-                            checkOut();
+                            Fluttertoast.showToast(
+                                msg: "Please enable location services");
                           }
                         }
                       },
@@ -140,6 +166,20 @@ class _DayInOutScreenState extends State<DayInOutScreen> {
           ),
 
           const Spacer(),
+
+          if (!widget.dayIn)
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                "Check in time : ${employeeController.dayInVerificationModel?.checkinTime}\n"
+                "Meter Reading : ${employeeController.dayInVerificationModel?.startingMeter}",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+              ),
+            ),
         ],
       ),
     );

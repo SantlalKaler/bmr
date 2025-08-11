@@ -1,5 +1,5 @@
 import 'package:bmr/ui/screens/approval/approval_screen.dart';
-import 'package:bmr/ui/screens/date_in_out/date_in_out_screen.dart';
+import 'package:bmr/ui/screens/date_in_out/day_in_out_screen.dart';
 import 'package:bmr/ui/screens/farmer/create_farmer_screen.dart';
 import 'package:bmr/ui/screens/feedback/feedback_screen.dart';
 import 'package:bmr/ui/screens/harvesting/create_harvest_screen.dart';

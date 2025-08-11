@@ -12,15 +12,13 @@ class SingleTask extends StatefulWidget {
 }
 
 class _SingleTaskState extends State<SingleTask> {
-  bool _showDetails = true;
+  bool _showDetails = false;
 
   void showVisitDetailsDialogs(BuildContext context) {
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        shape:
-            ContinuousRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: const VisitDetailsDialog(),
+      builder: (_) => const Dialog(
+        child: VisitDetailsDialog(),
       ),
     );
   }

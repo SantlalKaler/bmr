@@ -1,21 +1,30 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:battery_plus/battery_plus.dart';
 import 'package:bmr/controllers/auth_controller.dart';
+import 'package:bmr/controllers/user_controller.dart';
+import 'package:bmr/data/model/DayInVerificationModel.dart';
 import 'package:bmr/data/pref_data.dart';
 import 'package:bmr/ui/constants/strings_constants.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart' as dio;
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:location/location.dart' as lct;
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
 import '../data/model/user.dart';
 import '../ui/constants/constant.dart';
+import '../utils/date_converter.dart';
 import 'map_controller.dart';
 
 class EmployeeController extends GetxController {
   RxBool loading = false.obs;
   RxBool checkInOrCheckOutSuccess = false.obs;
+  RxBool dayInVerificationDataFound = false.obs;
+  DayInVerificationModel? dayInVerificationModel;
+  MapController mapController = Get.find();
   String? errorMessage;
 
   ApiService apiService = ApiService();
@@ -23,6 +32,7 @@ class EmployeeController extends GetxController {
   setLoading() => loading.value = !loading.value;
 
   AuthController authController = Get.find();
+  UserController userController = Get.find();
   User? user;
 
   @override
@@ -44,17 +54,29 @@ class EmployeeController extends GetxController {
     resetValues();
     setLoading();
 
-    // get users current location
-    MapController mapController = Get.find();
-    Position? position = await mapController.getCurrentLocation();
+    if (mapController.currentLocation == null) {
+      errorMessage = "Fetching current location...";
+      lct.LocationData? currentLocation =
+          await mapController.getCurrentLocation();
+      if (currentLocation == null) {
+        errorMessage = "Unable to fetch current location. Please try again.";
+        setLoading();
+        return;
+      }
+    }
+
+    var checkIn = DateConverter.convertDate(DateTime.now(),
+        format: 'yyyy-MM-dd HH:mm:ss');
     try {
       var data = dio.FormData.fromMap({
         "empid": user!.eId,
-        "check_in": "",
-        "geo_checkin": "",
+        "check_in": checkIn,
+        "geo_checkin": {
+          "lat": mapController.currentLocation!.latitude.toString(),
+          "lon": mapController.currentLocation!.longitude.toString()
+        },
         "starting_meter": startMeterReading
       });
-
       await apiService.post(AppUrls.createAttendance, data).then(
         (response) {
           if (response != null) {
@@ -84,13 +106,30 @@ class EmployeeController extends GetxController {
   Future attendanceCheckOut(String closingMeter) async {
     resetValues();
     setLoading();
+
+    if (mapController.currentLocation == null) {
+      errorMessage = "Fetching current location...";
+      lct.LocationData? currentLocation =
+          await mapController.getCurrentLocation();
+      if (currentLocation == null) {
+        errorMessage = "Unable to fetch current location. Please try again.";
+        setLoading();
+        return;
+      }
+    }
     var updateId = await PrefData.getCheckInId();
+    var checkOut = DateConverter.convertDate(DateTime.now(),
+        format: 'yyyy-MM-dd HH:mm:ss');
+
     try {
       var data = dio.FormData.fromMap({
         "empid": user!.eId,
         "update_id": updateId,
-        "check_out": "",
-        "geo_checkout": "",
+        "check_out": checkOut,
+        "geo_checkout": {
+          "lat": mapController.currentLocation?.latitude.toString(),
+          "lon": mapController.currentLocation?.longitude.toString()
+        },
         "closing_meter": closingMeter
       });
 
@@ -104,6 +143,9 @@ class EmployeeController extends GetxController {
 
             if (jsonData[StringConstants.apiSuccess].toString() ==
                 StringConstants.apiSuccessStatus) {
+              // clear save data in local storage
+              PrefData.clearDayInVerificationData();
+              hoursLogged.value = "00 hours 00 minutes";
               checkInOrCheckOutSuccess.value = true;
             } else {
               errorMessage = jsonData['val'];
@@ -117,14 +159,33 @@ class EmployeeController extends GetxController {
   }
 
   Future dayInStatusVerification() async {
+    setLoading();
+    var user = userController.user;
     try {
       await apiService
           .get(
-        "${AppUrls.dayInStatusVerification}?emp_id={emp_id}",
+        "${AppUrls.dayInStatusVerification}?emp_id=${user!.eId}",
       )
           .then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            dayInVerificationModel = DayInVerificationModel.fromJson(jsonData);
+            if (dayInVerificationModel!.success ==
+                StringConstants.apiSuccessStatus) {
+              dayInVerificationDataFound.value = true;
+              // save this day in verification data in local storage
+              PrefData.saveDayInVerificationData(
+                dayInVerificationModel!,
+              );
+              getHoursLoggedTime();
+            } else {
+              dayInVerificationDataFound.value = false;
+            }
+          }
         },
       );
     } finally {
@@ -132,23 +193,50 @@ class EmployeeController extends GetxController {
     }
   }
 
+  RxString hoursLogged = "00 hours 00 minutes".obs;
+  void getHoursLoggedTime() {
+    // subtract check in time from current time
+    if (dayInVerificationModel != null) {
+      var checkInTime = DateTime.parse(dayInVerificationModel!.checkinTime!);
+      var currentTime = DateTime.now();
+      var difference = currentTime.difference(checkInTime);
+      int hours = difference.inHours;
+      int minutes = difference.inMinutes % 60;
+      hoursLogged.value = "$hours hours $minutes minutes";
+    }
+  }
+
   Future employeeGpsLog() async {
+    var user = userController.user;
+    var mapController = MapController();
+    await mapController.getCurrentLocation();
+
+    if (mapController.currentLocation == null) {
+      Constant.printValue("Current location is null, cannot log GPS data");
+      return;
+    }
+
+    var geoCheckIn = json.encode({
+      "lat": mapController.currentLocation!.latitude,
+      "lon": mapController.currentLocation!.longitude
+    });
+    var batteryLevel = await getBatteryLevel();
+    var deviceId = await getDeviceId();
     try {
       var data = {
-        "empid": "",
-        "timestamp": "",
-        "device_id": "",
-        "gps_coordinates": "",
-        "battery_level": ""
+        "empid": user!.eId,
+        "timestamp": DateConverter.convertDate(DateTime.now(),
+            format: 'yyyy-MM-dd HH:mm:ss'),
+        "device_id": deviceId,
+        "gps_coordinates": geoCheckIn,
+        "battery_level": batteryLevel.toString()
       };
       await apiService.post(AppUrls.dayInStatusVerification, data).then(
         (response) {
           Constant.printValue("Response of Login api is :  $response");
         },
       );
-    } finally {
-      setLoading();
-    }
+    } finally {}
   }
 
   Future employeeList() async {
@@ -243,5 +331,24 @@ class EmployeeController extends GetxController {
     } finally {
       setLoading();
     }
+  }
+
+  Future<int> getBatteryLevel() async {
+    final battery = Battery();
+    final level = await battery.batteryLevel; // returns int (0 - 100)
+    return level;
+  }
+
+  Future<String?> getDeviceId() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    String? deviceId;
+    if (Platform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      deviceId = androidInfo.id; // UUID for Android
+    } else if (Platform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      deviceId = iosInfo.identifierForVendor; // UUID for iOS
+    }
+    return deviceId;
   }
 }

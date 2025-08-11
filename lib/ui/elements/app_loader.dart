@@ -4,18 +4,34 @@ import 'package:get/get.dart';
 import '../theme_light.dart';
 
 class AppLoader extends StatelessWidget {
-  const AppLoader({super.key, this.color});
+  const AppLoader({super.key, this.color, this.info});
   final Color? color;
+  final String? info;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 20,
-      width: 20,
-      child: CircularProgressIndicator(
-        color: color ?? primaryColor,
-        strokeWidth: 3,
-      ),
+    return Column(
+      children: [
+        SizedBox(
+          height: 20,
+          width: 20,
+          child: CircularProgressIndicator(
+            color: color ?? primaryColor,
+            strokeWidth: 3,
+          ),
+        ),
+        if (info != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              info!,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

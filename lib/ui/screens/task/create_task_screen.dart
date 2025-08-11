@@ -1,5 +1,6 @@
 import 'package:bmr/ui/constants/dimens_constants.dart';
 import 'package:bmr/ui/elements/app_loader.dart';
+import 'package:bmr/ui/elements/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,7 @@ class CreateTaskScreen extends StatefulWidget {
 }
 
 class _CreateTaskScreenState extends State<CreateTaskScreen> {
-  TaskController createTaskController = Get.find();
+  TaskController taskController = Get.find();
   TextEditingController taskDate = TextEditingController();
   TextEditingController customerName = TextEditingController();
   TextEditingController description = TextEditingController();
@@ -31,6 +32,27 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   void initState() {
     super.initState();
     customerController.getCustomerList();
+  }
+
+  void createTaskSummary() {
+    // check if all fields are filled
+    if (description.text.isEmpty ||
+        // location.text.isEmpty ||
+        taskDate.text.isEmpty ||
+        customerName.text.isEmpty) {
+      AppSnackBar.showSnackBar(
+        "Please fill all fields",
+      );
+      return;
+    } else {
+      taskController.createTaskSummary(
+          description.text,
+          location.text,
+          "0",
+          taskController.selectedItem.value.toString(),
+          // todo: send customer id here not name
+          customerName.text);
+    }
   }
 
   @override
@@ -45,31 +67,36 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 title: "Create Task",
               ),
             ),
-            floatingActionButton: Obx(() => Container(
-                  height: 40,
-                  width: 120,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(10),
+            floatingActionButton: Obx(() => GestureDetector(
+                  onTap: () {
+                    createTaskSummary();
+                  },
+                  child: Container(
+                    height: 40,
+                    width: 120,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: controller.loading.isTrue
+                        ? const AppLoader()
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_circle_rounded,
+                                color: Colors.white,
+                              ),
+                              Gap(10),
+                              Text("CREATE",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold))
+                            ],
+                          ),
                   ),
-                  child: controller.loading.isTrue
-                      ? const AppLoader()
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add_circle_rounded,
-                              color: Colors.white,
-                            ),
-                            Gap(10),
-                            Text("CREATE",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold))
-                          ],
-                        ),
                 )),
             body: SingleChildScrollView(
               padding: EdgeInsets.all(DimensConstants.screenPadding),
@@ -101,7 +128,10 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   const Gap(10),
                   Obx(
                     () => TextFieldWithDropdownSuggestion(
-                      list: const ['Customer 1', 'Customer 2', 'Customer 3'],
+                      list: customerController.customers
+                          .map((c) =>
+                              "${c.firstName ?? ''} ${c.lastName ?? ''}".trim())
+                          .toList(),
                       controller: customerName,
                       hintText: customerController.loading.isTrue
                           ? "Loading customer data..."

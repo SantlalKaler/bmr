@@ -57,7 +57,6 @@ class _VisitDetailsDialogState extends State<VisitDetailsDialog> {
       },
     ];
     return Container(
-      // height: 200,
       width: double.infinity,
       decoration: BoxDecoration(color: scaffoldBackgroundColor),
       child: Column(
@@ -96,46 +95,39 @@ class _VisitDetailsDialogState extends State<VisitDetailsDialog> {
               ],
             ),
           ),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: visitDetailsTiles.length,
-            padding: EdgeInsets.all(10),
-            itemBuilder: (context, index) {
-              var item = visitDetailsTiles[index];
-              return GestureDetector(
-                onTap: item['onTap'],
-                child: Padding(
+          for (var item in visitDetailsTiles)
+            GestureDetector(
+              onTap: item['onTap'],
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.all(10),
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: item['color'],
-                              borderRadius: BorderRadius.circular(100)),
-                          padding: const EdgeInsets.all(10),
-                          child: Image.asset(
-                            item['icon'],
-                            height: 20,
-                            width: 20,
-                            color: Colors.white,
-                          ),
+                  child: Row(
+                    children: [
+                      Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: item['color'],
+                            borderRadius: BorderRadius.circular(100)),
+                        padding: const EdgeInsets.all(10),
+                        child: Image.asset(
+                          item['icon'],
+                          height: 20,
+                          width: 20,
+                          color: Colors.white,
                         ),
-                        const Gap(15),
-                        Text(item['title'])
-                      ],
-                    ),
+                      ),
+                      const Gap(15),
+                      Text(item['title'])
+                    ],
                   ),
                 ),
-              );
-            },
-          )
+              ),
+            )
         ],
       ),
     );

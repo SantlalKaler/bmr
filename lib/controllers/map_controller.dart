@@ -5,7 +5,6 @@ import 'package:location/location.dart' as lct;
 import 'package:permission_handler/permission_handler.dart';
 
 import '../ui/constants/constant.dart';
-import '../ui/elements/app_snackbar.dart';
 import '../utils/permission_handler.dart';
 
 class MapController extends GetxController {
@@ -17,9 +16,9 @@ class MapController extends GetxController {
 
   setLoading() => loading.value = !loading.value;
 
-  checkPermission() async {
+  Future<bool> locationPermissionGranted() async {
     permissionGranted.value = await isPermissionGranted(Permission.location);
-    update();
+    return permissionGranted.value;
   }
 
   checkGpsStatus() async {
@@ -27,7 +26,7 @@ class MapController extends GetxController {
     update();
   }
 
-  Future<Position?> getCurrentLocationB() async {
+/*  Future<Position?> getCurrentLocationB() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -72,17 +71,36 @@ class MapController extends GetxController {
     var currentLocation = await Geolocator.getCurrentPosition();
     Constant.printValue("Current location in B is $currentLocation");
     return currentLocation;
-  }
+  }*/
 
-  Future getCurrentLocation() async {
-    await checkGpsStatus();
+  // check if location permission is granted
+
+  // get user current location
+  Future<lct.LocationData?> getCurrentLocation() async {
+    // check if permission is granted
+    if (!await locationPermissionGranted() || !await locationServiceEnabled()) {
+      Constant.printValue(
+          "Location permission not granted or service disabled");
+      Get.snackbar("Permission Denied", "Please enable location permission.");
+      return null;
+    }
+
+    // setLoading();
     lct.Location location = lct.Location();
     try {
-      Constant.printValue("Current location fectching $currentLocation");
+      Constant.printValue("Fetching current location ...");
       currentLocation = await location.getLocation();
-      Constant.printValue("Current location is : $currentLocation");
+      Constant.printValue("Current location is $currentLocation");
+      return currentLocation;
     } catch (e) {
-      Constant.printValue(e);
-    } finally {}
+      Constant.printValue("Error getting current location: $e");
+      Get.snackbar(
+          "Error", "Unable to get current location. Please try again.");
+      return null;
+    }
+  }
+
+  Future<bool> locationServiceEnabled() {
+    return Geolocator.isLocationServiceEnabled();
   }
 }

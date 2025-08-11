@@ -15,7 +15,7 @@ class _ChooseCustomerDialogState extends State<ChooseCustomerDialog> {
     return Container(
       width: double.infinity,
       padding: EdgeInsetsGeometry.all(DimensConstants.screenPadding),
-      decoration: BoxDecoration(color: Colors.white),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bmr/controllers/user_controller.dart';
+import 'package:bmr/data/model/customer.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
@@ -22,6 +23,7 @@ class CustomerController extends GetxController {
   RxInt selectedOwnOthers = 0.obs;
   RxInt selectedFarmerDealer = 0.obs;
   RxInt selectedActiveInactive = 0.obs;
+  RxList<Customer> customers = RxList();
 
   List<ChoiceChipItem> ownOthers = [
     ChoiceChipItem(title: "OWN"),
@@ -55,6 +57,17 @@ class CustomerController extends GetxController {
     } finally {
       setLoading();
     }
+  }
+
+  String? getCustomerIdByName(String name) {
+    return customers
+        .firstWhere(
+          (c) =>
+              "${c.firstName ?? ''} ${c.lastName ?? ''}".trim().toLowerCase() ==
+              name.trim().toLowerCase(),
+          orElse: () => Customer(id: null),
+        )
+        .id;
   }
 
   Future createCustomer({

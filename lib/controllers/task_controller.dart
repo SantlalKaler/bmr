@@ -1,9 +1,16 @@
+import 'dart:convert';
+
+import 'package:bmr/controllers/customer_controller.dart';
+import 'package:bmr/controllers/user_controller.dart';
+import 'package:bmr/ui/constants/strings_constants.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
 import '../ui/constants/constant.dart';
+import '../ui/elements/app_snackbar.dart';
 import '../ui/model/choice_chip_item.dart';
 
 class TaskController extends GetxController {
@@ -12,6 +19,7 @@ class TaskController extends GetxController {
   ApiService apiService = ApiService();
 
   setLoading() => loading.value = !loading.value;
+  UserController userController = Get.find();
 
   RxInt tabIndex = 0.obs;
 
@@ -36,20 +44,68 @@ class TaskController extends GetxController {
     update();
   }
 
-  Future createTaskSummary() async {
+  String generateTaskId(String empId) {
+    final now = DateTime.now();
+    final formattedDateTime = "${now.year.toString().padLeft(4, '0')}"
+        "${now.month.toString().padLeft(2, '0')}"
+        "${now.day.toString().padLeft(2, '0')}"
+        "${now.hour.toString().padLeft(2, '0')}"
+        "${now.minute.toString().padLeft(2, '0')}"
+        "${now.second.toString().padLeft(2, '0')}";
+    return "$empId" "emp" "$formattedDateTime";
+  }
+
+  Future createTaskSummary(String description, String location, String taskType,
+      String customerName, String transport) async {
+    CustomerController customerController = Get.find();
+    var userId = userController.user!.eId;
+    var currentDate = DateTime.now();
+    var taskId = generateTaskId(userId.toString());
+    var taskDate = DateFormat('yyyy-MM-dd').format(currentDate);
+    var customerId = customerController.getCustomerIdByName(customerName);
     try {
-      var data = {
-        "task_id": "",
-        "task_date": "",
-        "created_by_id": "",
-        "approved_by": "",
-        "assigned_by_id": "",
-        "created_date": "",
-        "taskSchedule": "",
-      };
+      var data = dio.FormData.fromMap({
+        "task_id": taskId,
+        "task_date": taskDate,
+        "created_by_id": userId,
+        "approved_by": userId,
+        "assigned_by_id": userId,
+        "created_date": taskDate,
+        "taskSchedule": [
+          {
+            "description": description,
+            "emp_id": userId,
+            "image": "",
+            "location": location,
+            "task_type": taskType,
+            "time": currentDate,
+            "transport": transport,
+            "customer_id": customerId
+          }
+        ],
+      });
+
+      Constant.printValue("Data of create task : ${data.fields}");
       await apiService.post(AppUrls.createtasksummaryapi, data).then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            if (jsonData['success'] == StringConstants.apiSuccessStatus) {
+              AppSnackBar.showSnackBar(
+                "Task created successfully",
+              );
+              // get tasks
+              getCurrentDayTaskList();
+            } else {
+              AppSnackBar.showSnackBar(
+                "Failed to create task",
+              );
+            }
+          }
         },
       );
     } finally {
@@ -123,14 +179,15 @@ class TaskController extends GetxController {
     }
   }
 
-  Future getCurrentDayTaskList({
-    required String empId,
-    required String regionId,
-    required String fromDate,
-    required String toDate,
-  }) async {
+  Future getCurrentDayTaskList() async {
     setLoading();
     try {
+      var user = userController.user;
+      var empId = user!.eId;
+      var regionId = user.regionId;
+      var fromDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      var toDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
       var data = dio.FormData.fromMap({
         "emp_id": empId,
         "region_id": regionId,
@@ -139,8 +196,12 @@ class TaskController extends GetxController {
       });
       await apiService.post(AppUrls.getCurrentDayTaskList, data).then(
         (response) {
-          Constant.printValue(
-              "Response of getCurrentDayTaskList API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+          }
         },
       );
     } finally {
@@ -148,14 +209,21 @@ class TaskController extends GetxController {
     }
   }
 
-  Future getPendingTaskList({required String empId}) async {
+  Future getPendingTaskList() async {
+    setLoading();
     try {
-      var data = {
-        "emp_id": empId,
-      };
+      var userId = userController.user!.eId;
+      var data = dio.FormData.fromMap({
+        "emp_id": userId,
+      });
       await apiService.post(AppUrls.getPendingTaskList, data).then(
         (response) {
-          Constant.printValue("Response of getPendingTaskList API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+          }
         },
       );
     } finally {
@@ -230,14 +298,21 @@ class TaskController extends GetxController {
     }
   }
 
-  Future getScheduleList(String loginId) async {
+  Future getScheduleList() async {
+    setLoading();
+    var user = userController.user;
     try {
-      var data = {
-        "login_id": loginId,
-      };
+      var data = dio.FormData.fromMap({
+        "login_id": user!.eId,
+      });
       await apiService.post(AppUrls.getScheduleList, data).then(
         (response) {
-          Constant.printValue("Response of getScheduleList API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+          }
         },
       );
     } finally {

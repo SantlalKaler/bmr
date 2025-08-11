@@ -1,3 +1,4 @@
+import 'package:bmr/data/model/DayInVerificationModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ui/constants/constant.dart';
@@ -59,5 +60,32 @@ class PrefData {
     Constant.printValue("User Saved in local is : $userJson");
     if (userJson == null || userJson.isEmpty) return null;
     return userFromJson(userJson);
+  }
+
+  static saveDayInVerificationData(DayInVerificationModel value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Convert DayInVerificationModel to JSON string
+    String dayInVerificationJson = dayInVerificationModelToJson(value);
+    // Save the JSON string in SharedPreferences
+    prefs.setString("dayInVerificationData", dayInVerificationJson);
+  }
+
+  // get day in verification data
+  static Future<DayInVerificationModel?> getDayInVerificationData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? dayInVerificationJson = prefs.getString("dayInVerificationData");
+
+    Constant.printValue(
+        "Day In Verification Data Saved in local is : $dayInVerificationJson");
+    if (dayInVerificationJson == null || dayInVerificationJson.isEmpty) {
+      return null;
+    }
+    return dayInVerificationModelFromJson(dayInVerificationJson);
+  }
+
+  static Future clearDayInVerificationData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove("dayInVerificationData");
+    await prefs.remove(checkInId);
   }
 }

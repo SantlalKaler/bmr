@@ -72,14 +72,24 @@ class ApiService {
       if (additionalHeaders != null) {
         headers.addAll(additionalHeaders);
       }
+
       try {
+        /*const contentType = */ /*isFormUrlEncoded
+            ? Headers.formUrlEncodedContentType
+            :*/ /* Headers.formUrlEncodedContentType;*/
+
+        final options = Options(
+          headers: headers,
+          // contentType: contentType, // <--- here
+          sendTimeout: const Duration(minutes: 5),
+        );
+
         final response = hasQueryParam
             ? await _dio.post(
                 customBaseURI == null ? (AppUrls.baseUrl + path) : path,
                 queryParameters: queryParam,
                 data: data,
-                options: Options(
-                    headers: headers, sendTimeout: const Duration(minutes: 5)))
+                options: options)
             : await _dio.post(
                 customBaseURI == null ? (AppUrls.baseUrl + path) : path,
                 data: data,

@@ -14,13 +14,14 @@ class ViewTaskScreen extends StatefulWidget {
 class _ViewTaskScreenState extends State<ViewTaskScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  TaskController currentDayTaskController = Get.find();
+  TaskController taskController = Get.find();
 
   @override
   void initState() {
     tabController = TabController(length: 6, vsync: this);
+    taskController.getScheduleList();
     tabController.addListener(() {
-      currentDayTaskController.changeTabIndex(tabController.index);
+      taskController.changeTabIndex(tabController.index);
     });
     super.initState();
   }

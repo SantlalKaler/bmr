@@ -2,7 +2,6 @@ import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/data/model/user.dart';
 import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/routes/mobile_routes.dart';
-import 'package:bmr/utils/date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -38,19 +37,10 @@ class _CurrentDayTaskScreenState extends State<CurrentDayTaskScreen>
   }
 
   void getTasks() async {
-    final empId = user!.eId ?? "";
-    final regionId = user!.regionId?[0] ?? "";
-    final fromDate =
-        DateConverter.convertDate(DateTime.now(), format: "dd-MM-yyyy");
-    final toDate =
-        DateConverter.convertDate(DateTime.now(), format: "dd-MM-yyyy");
-
     if (tabController.index == 0) {
-      await taskController.getCurrentDayTaskList(
-          empId: empId, regionId: regionId, fromDate: fromDate, toDate: toDate);
+      await taskController.getCurrentDayTaskList();
     } else {
-      await taskController.getPendingTaskApprovalList(
-          empId: empId, regionId: regionId, fromDate: fromDate, toDate: toDate);
+      await taskController.getPendingTaskList();
     }
   }
 

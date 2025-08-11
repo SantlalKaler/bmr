@@ -1,4 +1,5 @@
 import 'package:bmr/ui/screens/task/components/single_task.dart';
+import 'package:bmr/utils/date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -15,8 +16,9 @@ class _CurrentDayState extends State<CurrentDay> {
     return Column(
       children: [
         Gap(10),
-        const Center(
-          child: Text("21-Jun-2025"),
+        Center(
+          child: Text(
+              DateConverter.convertDate(DateTime.now(), format: "dd-MMM-yyyy")),
         ),
         const Gap(10),
         Expanded(

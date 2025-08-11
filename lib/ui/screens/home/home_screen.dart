@@ -1,4 +1,5 @@
 import 'package:bmr/controllers/auth_controller.dart';
+import 'package:bmr/controllers/map_controller.dart';
 import 'package:bmr/data/pref_data.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
 import 'package:bmr/ui/constants/image_constants.dart';
@@ -9,11 +10,17 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../controllers/employee_controller.dart';
 import '../../routes/mobile_routes.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   void _logout(BuildContext context) {
     showDialog(
       context: context,
@@ -38,9 +45,20 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  AuthController authController = Get.find();
+  EmployeeController employeeController = Get.find();
+  MapController mapController = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    mapController.getCurrentLocation();
+    employeeController.dayInStatusVerification();
+  }
+
   @override
   Widget build(BuildContext context) {
-    AuthController authController = Get.find();
+    employeeController.getHoursLoggedTime();
     final List<Map<String, dynamic>> dashboardTiles = [
       {
         'title': 'Current Day Task',
@@ -153,6 +171,7 @@ class HomeScreen extends StatelessWidget {
         'comment': 'Report Icon'
       },
     ];
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -199,14 +218,16 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const Gap(10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    "House Logged: 00:00",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              Obx(
+                () => Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      "House Logged: ${employeeController.hoursLogged}",
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
 
               const Gap(20),
@@ -216,8 +237,10 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        context.push(AppPath.dateInOutPath, extra: true);
+                      onTap: () async {
+                        String checkInUpdateId = await PrefData.getCheckInId();
+                        context.push(AppPath.dateInOutPath,
+                            extra: checkInUpdateId.isEmpty ? true : false);
                       },
                       child: Container(
                         decoration: BoxDecoration(

@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 
+import '../../../controllers/pond_controller.dart';
+import '../../elements/textfield_with_dropdown_suggestion.dart';
+
 class SamplingScreen extends StatefulWidget {
   const SamplingScreen({super.key});
 
@@ -16,12 +19,18 @@ class SamplingScreen extends StatefulWidget {
 
 class _SamplingScreenState extends State<SamplingScreen> {
   CustomerController customerController = Get.find();
+  PondController pondController = Get.find();
+  TextEditingController customerName = TextEditingController();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     customerController.getCustomerList();
+  }
+
+  getCustomerSampling(String customerName) {
+    // todo: get customer id based on customer name and send customer id to api
+    pondController.getPondSamplingList("");
   }
 
   @override
@@ -37,11 +46,16 @@ class _SamplingScreenState extends State<SamplingScreen> {
         padding: EdgeInsets.all(DimensConstants.screenPadding),
         child: Column(
           children: [
-            const TextField(
-              decoration: InputDecoration(
-                hintText: "Customer Name",
-              ),
-            ),
+            Obx(() => TextFieldWithDropdownSuggestion(
+                  list: const ['Customer 1', 'Customer 2', 'Customer 3'],
+                  controller: customerName,
+                  onSelect: () {
+                    getCustomerSampling(customerName.text);
+                  },
+                  hintText: customerController.loading.isTrue
+                      ? "Loading customer data..."
+                      : 'Customer name',
+                )),
             const Gap(10),
             Expanded(
               child: ListView.builder(
