@@ -5,6 +5,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:bmr/controllers/auth_controller.dart';
 import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/data/model/DayInVerificationModel.dart';
+import 'package:bmr/data/model/employee.dart';
 import 'package:bmr/data/pref_data.dart';
 import 'package:bmr/ui/constants/strings_constants.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -26,6 +27,8 @@ class EmployeeController extends GetxController {
   RxBool dayInVerificationDataFound = false.obs;
   DayInVerificationModel? dayInVerificationModel;
   MapController mapController = Get.find();
+  RxList<Employee> employeeList = <Employee>[].obs;
+  RxList<String> employeeListString = <String>[].obs;
   String? errorMessage;
 
   ApiService apiService = ApiService();
@@ -44,6 +47,17 @@ class EmployeeController extends GetxController {
 
   Future getUser() async {
     user = await PrefData.getUser();
+  }
+
+  String? getEmployeeIdByName(String name) {
+    return employeeList
+        .firstWhere(
+          (c) =>
+              "${c.firstname ?? ''} ${c.lastname ?? ''}".trim().toLowerCase() ==
+              name.trim().toLowerCase(),
+          orElse: () => Employee(id: null),
+        )
+        .id;
   }
 
   void resetValues() {
@@ -237,14 +251,32 @@ class EmployeeController extends GetxController {
     } finally {}
   }
 
-  Future employeeList() async {
+  Future getEmployeeList() async {
+    setLoading();
+    employeeList.clear();
+    employeeListString.clear();
+    var user = userController.user;
     try {
-      var data = {
-        "login_id": "",
-      };
+      var data = dio.FormData.fromMap({
+        "login_id": user!.eId,
+      });
       await apiService.post(AppUrls.getlistapi, data).then(
         (response) {
           Constant.printValue("Response of Login api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            for (var item in jsonData) {
+              employeeList.add(Employee.fromJson(item));
+
+              // Add employee name to the string list combine first and last name
+              String employeeName = "${item['firstname']} ${item['lastname']}";
+              employeeListString.add(employeeName);
+            }
+          }
         },
       );
     } finally {

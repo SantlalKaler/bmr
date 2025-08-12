@@ -1,5 +1,7 @@
+import 'package:bmr/controllers/employee_controller.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
 import 'package:bmr/ui/elements/app_loader.dart';
+import 'package:bmr/ui/elements/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -21,16 +23,30 @@ class AssignTaskScreen extends StatefulWidget {
 class _AssignTaskScreenState extends State<AssignTaskScreen> {
   TaskController createTaskController = Get.find();
   TextEditingController taskDate = TextEditingController();
+  TextEditingController assignTo = TextEditingController();
   TextEditingController customerName = TextEditingController();
   TextEditingController description = TextEditingController();
   TextEditingController location = TextEditingController();
 
   CustomerController customerController = Get.find();
+  EmployeeController employeeController = Get.find();
 
   @override
   void initState() {
     super.initState();
     customerController.getCustomerList();
+    employeeController.getEmployeeList();
+  }
+
+  // validate the form fields
+  bool validateForm() {
+    if (taskDate.text.isEmpty ||
+        customerController.customersStringList.isEmpty ||
+        assignTo.text.isEmpty) {
+      AppSnackBar.showSnackBar("Please select a task date");
+      return false;
+    }
+    return true;
   }
 
   @override
@@ -45,31 +61,44 @@ class _AssignTaskScreenState extends State<AssignTaskScreen> {
                 title: "Assign Task",
               ),
             ),
-            floatingActionButton: Obx(() => Container(
-                  height: 40,
-                  width: 120,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(10),
+            floatingActionButton: Obx(() => GestureDetector(
+                  onTap: () {
+                    if (validateForm()) {
+                      controller.createTaskSummary(
+                          description.text,
+                          location.text,
+                          "0",
+                          customerName.text,
+                          controller.selectedItem.value.toString(),
+                          assignTo.text);
+                    }
+                  },
+                  child: Container(
+                    height: 40,
+                    width: 120,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: controller.loading.isTrue
+                        ? const AppLoader()
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_circle_rounded,
+                                color: Colors.white,
+                              ),
+                              Gap(10),
+                              Text("CREATE",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold))
+                            ],
+                          ),
                   ),
-                  child: controller.loading.isTrue
-                      ? const AppLoader()
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add_circle_rounded,
-                              color: Colors.white,
-                            ),
-                            Gap(10),
-                            Text("CREATE",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold))
-                          ],
-                        ),
                 )),
             body: SingleChildScrollView(
               padding: EdgeInsets.all(DimensConstants.screenPadding),
@@ -101,8 +130,8 @@ class _AssignTaskScreenState extends State<AssignTaskScreen> {
                   const Gap(10),
                   Obx(
                     () => TextFieldWithDropdownSuggestion(
-                      list: const ['Customer 1', 'Customer 2', 'Customer 3'],
-                      controller: customerName,
+                      list: employeeController.employeeListString,
+                      controller: assignTo,
                       hintText: customerController.loading.isTrue
                           ? "Loading data..."
                           : 'Assign To',
@@ -111,7 +140,7 @@ class _AssignTaskScreenState extends State<AssignTaskScreen> {
                   const Gap(10),
                   Obx(
                     () => TextFieldWithDropdownSuggestion(
-                      list: const ['Customer 1', 'Customer 2', 'Customer 3'],
+                      list: customerController.customersStringList,
                       controller: customerName,
                       hintText: customerController.loading.isTrue
                           ? "Loading customer data..."

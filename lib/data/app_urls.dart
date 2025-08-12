@@ -20,8 +20,11 @@ class AppUrls {
   static const sendcustomermail = "index.php/employee/sendcustomermail";
 
   // Task
-  static const createtasksummaryapi = "index.php/employee/createtasksummaryapi";
-  static const updatetasksummaryapi = "index.php/employee/updatetasksummaryapi";
+  static const createtasksummaryapi =
+      "index.php/tasksummary/createtasksummaryapi";
+  static const updatetasksummaryapi =
+      "index.php/tasksummary/updatetasksummaryapi";
+  static const getTaskList = "index.php/tasksummary/getlisttaskapi";
   static const getPendingTaskApprovalList =
       "index.php/tasksummary/getlistallpendingtaskapi";
   static const getCurrentDayTaskList =

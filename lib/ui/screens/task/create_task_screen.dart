@@ -45,13 +45,8 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       );
       return;
     } else {
-      taskController.createTaskSummary(
-          description.text,
-          location.text,
-          "0",
-          taskController.selectedItem.value.toString(),
-          // todo: send customer id here not name
-          customerName.text);
+      taskController.createTaskSummary(description.text, location.text, "0",
+          taskController.selectedItem.value.toString(), customerName.text, "");
     }
   }
 
@@ -128,10 +123,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   const Gap(10),
                   Obx(
                     () => TextFieldWithDropdownSuggestion(
-                      list: customerController.customers
-                          .map((c) =>
-                              "${c.firstName ?? ''} ${c.lastName ?? ''}".trim())
-                          .toList(),
+                      list: customerController.customersStringList,
                       controller: customerName,
                       hintText: customerController.loading.isTrue
                           ? "Loading customer data..."

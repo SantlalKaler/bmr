@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bmr/controllers/customer_controller.dart';
+import 'package:bmr/controllers/employee_controller.dart';
 import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/ui/constants/strings_constants.dart';
 import 'package:dio/dio.dart' as dio;
@@ -56,36 +57,43 @@ class TaskController extends GetxController {
   }
 
   Future createTaskSummary(String description, String location, String taskType,
-      String customerName, String transport) async {
+      String customerName, String transport, String employeeName) async {
+    setLoading();
+
     CustomerController customerController = Get.find();
+    EmployeeController employeeController = Get.find();
+
     var userId = userController.user!.eId;
     var currentDate = DateTime.now();
     var taskId = generateTaskId(userId.toString());
     var taskDate = DateFormat('yyyy-MM-dd').format(currentDate);
     var customerId = customerController.getCustomerIdByName(customerName);
+    var employeeId = employeeController.getEmployeeIdByName(employeeName);
+
     try {
-      var data = dio.FormData.fromMap({
+      var taskSchedule = [
+        {
+          "description": description,
+          "emp_id": employeeId,
+          "image": "",
+          "location": location,
+          "task_type": taskType,
+          "time": currentDate,
+          "transport": transport,
+          "customer_id": customerId
+        }
+      ];
+      var data = {
         "task_id": taskId,
         "task_date": taskDate,
         "created_by_id": userId,
         "approved_by": userId,
         "assigned_by_id": userId,
         "created_date": taskDate,
-        "taskSchedule": [
-          {
-            "description": description,
-            "emp_id": userId,
-            "image": "",
-            "location": location,
-            "task_type": taskType,
-            "time": currentDate,
-            "transport": transport,
-            "customer_id": customerId
-          }
-        ],
-      });
+        "taskSchedule": taskSchedule,
+      };
 
-      Constant.printValue("Data of create task : ${data.fields}");
+      Constant.printValue("Data of create task : ${data}");
       await apiService.post(AppUrls.createtasksummaryapi, data).then(
         (response) {
           if (response != null) {
@@ -135,21 +143,20 @@ class TaskController extends GetxController {
   }
 
   Future getTaskList() async {
+    UserController userController = Get.find();
+    var user = userController.user;
+    var fromDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    var toDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
     try {
-      var data = {
-        "emp_id": "",
-        "region_id": "",
-        "task_date": "",
-        "created_by_id": "",
-        "approved_by": "",
-        "created_date": "",
-        "taskSchedule": "",
-      };
-      await apiService.post(AppUrls.updatetasksummaryapi, data).then(
-        (response) {
-          Constant.printValue("Response of Login api is :  $response");
-        },
-      );
+      var data = dio.FormData.fromMap({
+        "emp_id": user!.eId,
+        "region_id": user.regionId,
+        "from_date": fromDate,
+        "to_date": toDate,
+      });
+      await apiService.post(AppUrls.getTaskList, data).then(
+            (response) {},
+          );
     } finally {
       setLoading();
     }

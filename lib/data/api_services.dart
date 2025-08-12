@@ -36,11 +36,15 @@ class ApiService {
         // var user = await PrefData.getUser();
         // headers['Authorization'] = '${user!.authToken}';
       }
+      headers['Content-Type'] = 'application/x-www-form-urlencoded';
+
+      // add from url encoded content type
+
       try {
         final response = await _dio.get(
             customBaseURI == null ? (AppUrls.baseUrl + path) : path,
-            options:
-                Options(headers: headers, sendTimeout: Duration(minutes: 5)));
+            options: Options(
+                headers: headers, sendTimeout: const Duration(minutes: 5)));
         return response;
       } catch (error) {
         _handleError(error);
