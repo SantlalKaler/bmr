@@ -2,6 +2,7 @@ class AppUrls {
   static const baseUrl = "https://www.devbmr.webperfection.in/";
   static const login = "index.php/employee/loginapi";
   static const logout = "index.php/employee/logout";
+  static const changepasswordapi = "index.php/employee/changepasswordapi";
   static const createAttendance = "index.php/employee/createattendance";
   static const updateAttendance = "index.php/employee/updateattendance";
   static const dayInStatusVerification = "index.php/employee/dayinverification";

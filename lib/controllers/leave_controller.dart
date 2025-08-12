@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:bmr/ui/constants/strings_constants.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
@@ -6,6 +10,9 @@ import '../ui/constants/constant.dart';
 
 class LeaveController extends GetxController {
   RxBool loading = false.obs;
+  RxBool createLeaveSuccess = false.obs;
+
+  String? errorMessage;
 
   ApiService apiService = ApiService();
 
@@ -34,18 +41,32 @@ class LeaveController extends GetxController {
     required String fromDate,
     required String toDate,
   }) async {
+    setLoading();
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "emp_id": empId,
         "leave_type": leaveType,
         "purpose": purpose,
         "leave_days": leaveDays,
         "from_date": fromDate,
         "to_date": toDate,
-      };
+      });
       await apiService.post(AppUrls.createLeaveRequest, data).then(
         (response) {
-          Constant.printValue("Response of createLeaveRequest API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            if (jsonData['success'] == StringConstants.apiSuccessStatus) {
+              createLeaveSuccess.value = true;
+              errorMessage = null;
+            } else {
+              errorMessage =
+                  jsonData['val'] ?? "Failed to create leave request";
+              createLeaveSuccess.value = false;
+            }
+          }
         },
       );
     } finally {

@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    mapController.getCurrentLocation();
+    // mapController.getCurrentLocation();
     employeeController.dayInStatusVerification();
   }
 

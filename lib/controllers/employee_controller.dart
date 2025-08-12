@@ -11,6 +11,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:location/location.dart' as lct;
+import 'package:uuid/uuid.dart';
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
@@ -208,32 +209,29 @@ class EmployeeController extends GetxController {
 
   Future employeeGpsLog() async {
     var user = userController.user;
-    var mapController = MapController();
-    await mapController.getCurrentLocation();
 
     if (mapController.currentLocation == null) {
       Constant.printValue("Current location is null, cannot log GPS data");
       return;
     }
 
-    var geoCheckIn = json.encode({
-      "lat": mapController.currentLocation!.latitude,
-      "lon": mapController.currentLocation!.longitude
-    });
     var batteryLevel = await getBatteryLevel();
-    var deviceId = await getDeviceId();
+    var deviceId = const Uuid().v4();
     try {
-      var data = {
-        "empid": user!.eId,
+      var data = dio.FormData.fromMap({
+        "emp_id": user!.eId,
         "timestamp": DateConverter.convertDate(DateTime.now(),
             format: 'yyyy-MM-dd HH:mm:ss'),
         "device_id": deviceId,
-        "gps_coordinates": geoCheckIn,
+        "gps_coordinates": {
+          "lat": mapController.currentLocation!.latitude,
+          "lon": mapController.currentLocation!.longitude
+        },
         "battery_level": batteryLevel.toString()
-      };
-      await apiService.post(AppUrls.dayInStatusVerification, data).then(
+      });
+      await apiService.post(AppUrls.employeeGpsLog, data).then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          Constant.printValue("Response of api is :  $response");
         },
       );
     } finally {}

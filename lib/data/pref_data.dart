@@ -1,4 +1,5 @@
 import 'package:bmr/data/model/DayInVerificationModel.dart';
+import 'package:bmr/utils/gps_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ui/constants/constant.dart';
@@ -15,6 +16,8 @@ class PrefData {
   static clearUser() async {
     // var token = await getDeviceToken();
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    GpsLogger gpsLogger = GpsLogger();
+    gpsLogger.stopGpsLogging(); // Stop GPS logging when clearing user data
     prefs.clear();
     // saveDeviceToken(token);
   }

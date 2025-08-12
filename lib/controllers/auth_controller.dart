@@ -17,6 +17,7 @@ class AuthController extends GetxController {
   RxBool dialogLoading = false.obs;
   RxBool loginSuccess = false.obs;
   RxBool resetSessionSuccess = false.obs;
+  RxBool changePasswordSuccess = false.obs;
   String? errorMessage;
 
   ApiService apiService = ApiService();
@@ -81,13 +82,27 @@ class AuthController extends GetxController {
     }
   }
 
-  Future changePassword() async {
+  Future changePassword(
+      {required String username, required String newPassword}) async {
+    setLoading();
+    UserController userController = Get.find();
+    var user = userController.user;
     try {
-      var data = {"emp_id": "", "password": ""};
+      var data = dio.FormData.fromMap(
+          {"emp_id": user!.eId, "password": newPassword, "username": username});
 
-      await apiService.post(AppUrls.logout, data).then(
+      await apiService.post(AppUrls.changepasswordapi, data).then(
         (response) {
-          Constant.printValue("Response of logout api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            if (jsonData['success'] == StringConstants.apiSuccessStatus) {
+              changePasswordSuccess.value = true;
+            }
+          }
         },
       );
     } finally {

@@ -4,7 +4,7 @@ import '../ui/constants/constant.dart';
 
 Future<bool> isPermissionGranted(Permission permission) async {
   var permissionGranted = false;
-  Constant.printValue("Permission denied ${await permission.status}");
+  Constant.printValue("Permission : ${await permission.status}");
   if (await permission.isDenied ||
       await permission.isPermanentlyDenied ||
       await permission.shouldShowRequestRationale ||
