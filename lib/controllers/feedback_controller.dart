@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:bmr/ui/constants/strings_constants.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
@@ -6,8 +10,10 @@ import '../ui/constants/constant.dart';
 
 class FeedbackController extends GetxController {
   RxBool loading = false.obs;
+  RxBool formSubmitSuccess = false.obs;
 
   ApiService apiService = ApiService();
+  String? errorMessage;
 
   setLoading() => loading.value = !loading.value;
 
@@ -52,23 +58,24 @@ class FeedbackController extends GetxController {
   }
 
   Future physicalTest({
-    required String taskId,
-    required String loginId,
-    required String datetime,
-    required String powderHg12,
-    required String hg3s3p4s45,
-    required String pride3p4s4,
-    required String fcr,
-    required String moldsInfection,
-    required String fibrous,
-    required String stitchingProblem,
-    required String feedSinkingTime,
-    required String farmerId,
-    required String pondId,
-    required String comments,
+    String? taskId,
+    String? loginId,
+    String? datetime,
+    String? powderHg12,
+    String? hg3s3p4s45,
+    String? pride3p4s4,
+    String? fcr,
+    String? moldsInfection,
+    String? fibrous,
+    String? stitchingProblem,
+    String? feedSinkingTime,
+    String? farmerId,
+    String? pondId,
+    String? comments,
   }) async {
+    setLoading();
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "task_id": taskId,
         "login_id": loginId,
         "datetime": datetime,
@@ -83,10 +90,23 @@ class FeedbackController extends GetxController {
         "farmer_id": farmerId,
         "pond_id": pondId,
         "comments": comments,
-      };
+      });
       await apiService.post(AppUrls.physicalTest, data).then(
         (response) {
-          Constant.printValue("Response of physicalTest API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            if (jsonData['success'] == StringConstants.apiSuccessStatus) {
+              formSubmitSuccess.value = true;
+              errorMessage = null;
+            } else {
+              formSubmitSuccess.value = false;
+              errorMessage = jsonData['val'];
+            }
+          }
         },
       );
     } finally {
@@ -95,45 +115,59 @@ class FeedbackController extends GetxController {
   }
 
   Future technicalTest({
-    required String taskId,
-    required String loginId,
-    required String datetime,
-    required String farmerId,
-    required String pondId,
-    required String waterSources,
-    required String pumping,
-    required String treatment,
-    required String checkTrayFeedQty,
-    required String sedimentationTank,
-    required String preTreatmentAvailable,
-    required String fencingAndDisinfectants,
-    required String appliedAnyFermentation,
-    required String probioticSupplementation,
-    required String aeratorsChlorinationAfterCrap,
-    required String comments,
+    String? taskId,
+    String? loginId,
+    String? datetime,
+    String? farmerId,
+    String? pondId,
+    String? waterSources,
+    String? pumping,
+    String? treatment,
+    String? checkTrayFeedQty,
+    String? sedimentationTank,
+    String? preTreatmentAvailable,
+    String? fencingAndDisinfectants,
+    String? appliedAnyFermentation,
+    String? probioticSupplementation,
+    String? aeratorsChlorinationAfterCrap,
+    String? comments,
   }) async {
+    setLoading();
     try {
-      var data = {
-        "task_id": taskId,
-        "login_id": loginId,
-        "datetime": datetime,
-        "farmer_id": farmerId,
-        "pond_id": pondId,
-        "water_sources": waterSources,
-        "pumping": pumping,
-        "treatment": treatment,
-        "check_tray_feed_qty": checkTrayFeedQty,
-        "sedimentation_tank": sedimentationTank,
-        "pre_treatment_available": preTreatmentAvailable,
-        "fencing_and_disinfectants": fencingAndDisinfectants,
-        "applied_any_fermentation": appliedAnyFermentation,
-        "probiotic_supplementation": probioticSupplementation,
-        "aerators_chlorination_after_crap": aeratorsChlorinationAfterCrap,
-        "comments": comments,
-      };
+      var data = dio.FormData.fromMap({
+        "task_id": taskId ?? "",
+        "login_id": loginId ?? "",
+        "datetime": datetime ?? "",
+        "farmer_id": farmerId ?? "",
+        "pond_id": pondId ?? "",
+        "water_sources": waterSources ?? "",
+        "pumping": pumping ?? "",
+        "treatment": treatment ?? "",
+        "check_tray_feed_qty": checkTrayFeedQty ?? "",
+        "sedimentation_tank": sedimentationTank ?? "",
+        "pre_treatment_available": preTreatmentAvailable ?? "",
+        "fencing_and_disinfectants": fencingAndDisinfectants ?? "",
+        "applied_any_fermentation": appliedAnyFermentation ?? "",
+        "probiotic_supplementation": probioticSupplementation ?? "",
+        "aerators_chlorination_after_crap": aeratorsChlorinationAfterCrap ?? "",
+        "comments": comments ?? "",
+      });
       await apiService.post(AppUrls.technicalTest, data).then(
         (response) {
-          Constant.printValue("Response of technicalTest API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            if (jsonData['success'] == StringConstants.apiSuccessStatus) {
+              formSubmitSuccess.value = true;
+              errorMessage = null;
+            } else {
+              formSubmitSuccess.value = false;
+              errorMessage = jsonData['val'];
+            }
+          }
         },
       );
     } finally {

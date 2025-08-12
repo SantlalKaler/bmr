@@ -6,16 +6,20 @@ import 'package:get/get.dart';
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
+import '../data/model/dealer.dart';
 import '../ui/constants/constant.dart';
 
 class CustomController extends GetxController {
   RxBool loading = false.obs;
   RxBool zoneLoading = false.obs;
   RxBool stateLoading = false.obs;
+  RxBool dealerLoading = false.obs;
 
   ApiService apiService = ApiService();
 
   RxList<Zone> zoneList = RxList();
+  RxList<Dealer> dealerList = RxList();
+  RxList<String> dealerListSting = RxList();
   RxList<String> zoneListSting = RxList();
 
   RxList<StateItem> stateList = RxList();
@@ -90,16 +94,29 @@ class CustomController extends GetxController {
   }
 
   Future getDealersList(String regionId) async {
+    dealerList.clear();
+    dealerListSting.clear();
+    dealerLoading.value = true;
     try {
       await apiService
           .get("${AppUrls.getDealersList}?region_id=$regionId")
           .then(
         (response) {
-          Constant.printValue("Response of getDealersList api is : $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            for (var value in jsonData) {
+              dealerList.add(Dealer.fromJson(value));
+              dealerListSting.add(value['first_name']);
+            }
+          }
         },
       );
     } finally {
-      setLoading();
+      dealerLoading.value = false;
     }
   }
 

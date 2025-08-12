@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../controllers/customer_controller.dart';
+import '../../constants/constant.dart';
 import '../widgets/app_choice_chip.dart';
 
 class CreateFarmerScreen extends StatefulWidget {
@@ -34,6 +35,7 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
   TextEditingController address2Controller = TextEditingController();
   TextEditingController commentsController = TextEditingController();
   TextEditingController bmrController = TextEditingController();
+  TextEditingController dealerController = TextEditingController();
 
   @override
   void initState() {
@@ -78,6 +80,7 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                           onChanged: (String? newValue) {
                             customerController.selectedZone.value =
                                 newValue ?? "";
+                            getSelectedZoneId();
                           },
                         ),
                         const Gap(10),
@@ -169,13 +172,35 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                     ),
                   ),
                   const Gap(10),
-                  TextField(
-                    controller: bmrController,
-                    decoration: const InputDecoration(
-                      hintText: "BMR",
-                    ),
+                  Obx(
+                    () => customerController.selectedOwnOthers.value == 0
+                        ? TextField(
+                            controller: bmrController,
+                            decoration: const InputDecoration(
+                              hintText: "BMR",
+                            ),
+                          )
+                        : DropdownButton(
+                            value: customerController.selectedDealer.value,
+                            hint: Text(customController.dealerLoading.isTrue
+                                ? "Loading dealers..."
+                                : "Select Dealer"),
+                            isExpanded: true,
+                            // Makes dropdown full width
+                            items: customController.dealerListSting
+                                .map((String item) {
+                              return DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(item),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              customerController.selectedDealer.value =
+                                  newValue ?? "";
+                            },
+                          ),
                   ),
-                  Gap(10),
+                  const Gap(10),
                   Obx(
                     () => Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -188,6 +213,17 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                               customerController.selectedOwnOthers.value,
                           onSelected: (value) {
                             customerController.selectedOwnOthers.value = value;
+                            if (customerController.selectedOwnOthers.value ==
+                                1) {
+                              // get zone id from selected zone
+                              var zoneId = getSelectedZoneId();
+                              // if zoneId is not null, get dealers list
+                              if (zoneId != null) {
+                                customController.getDealersList(zoneId);
+                              }
+                            } else {
+                              customerController.selectedDealer.value = null;
+                            }
                           },
                           title: '',
                         ),
@@ -223,7 +259,7 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                         Gap(30),
 
                         customerController.loading.isTrue
-                            ? Center(child: const AppLoader())
+                            ? const Center(child: AppLoader())
                             : Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -232,7 +268,9 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                                     child: AppButton(
                                         title: "CREATE FARMER",
                                         onTap: () {
-                                          createFarmer();
+                                          if (validateFrom()) {
+                                            createFarmer();
+                                          }
                                         }),
                                   ),
                                   const Gap(10),
@@ -268,6 +306,43 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
     customerController.selectedActiveInactive.value = 0;
   }
 
+  bool validateFrom() {
+    if (contactNoController.text.isEmpty) {
+      AppSnackBar.showSnackBar("Please enter contact number");
+      return false;
+    }
+    if (firstNameController.text.isEmpty) {
+      AppSnackBar.showSnackBar("Please enter first name");
+      return false;
+    }
+    if (lastNameController.text.isEmpty) {
+      AppSnackBar.showSnackBar("Please enter last name");
+      return false;
+    }
+    if (address1Controller.text.isEmpty) {
+      AppSnackBar.showSnackBar("Please enter address 1");
+      return false;
+    }
+    if (customerController.selectedState.value == null) {
+      AppSnackBar.showSnackBar("Please select state");
+      return false;
+    }
+    if (customerController.selectedCity.value == null) {
+      AppSnackBar.showSnackBar("Please select city");
+      return false;
+    }
+    if (customerController.selectedZone.value == null) {
+      AppSnackBar.showSnackBar("Please select zone");
+      return false;
+    }
+    if (customerController.selectedOwnOthers.value == 1 &&
+        customerController.selectedDealer.value == null) {
+      AppSnackBar.showSnackBar("Please select dealer");
+      return false;
+    }
+    return true;
+  }
+
   createFarmer() async {
     await customerController.createCustomer(
       contactNo: contactNoController.text,
@@ -281,8 +356,11 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
       state: customerController.selectedState.value ?? "",
       zone: getSelectedZoneId() ?? "1",
       comments: commentsController.text,
-      category: userController.user!.catId ?? "2",
-      customerOf: "BMR",
+      // if farmer then category is 2, if dealer then 1
+      category: customerController.selectedFarmerDealer.value == 0 ? "2" : "1",
+      customerOf: customerController.selectedOwnOthers.value == 1
+          ? customerController.selectedDealer.value ?? ""
+          : "BMR",
       status: customerController.selectedActiveInactive.value == 0
           ? "Active"
           : "Inactive",
@@ -304,6 +382,9 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
     final matchedZone = customController.zoneList.firstWhereOrNull(
       (zone) => zone.zoneName == selected,
     );
+
+    Constant.printValue(
+        "Matched Zone: ${matchedZone?.id}\n Match zone name : ${matchedZone?.zoneName}\n Selected Zone: $selected");
 
     return matchedZone?.id;
   }

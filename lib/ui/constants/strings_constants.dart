@@ -3,4 +3,5 @@ class StringConstants {
   static String somethingWentWrong = "Something went wrong.";
   static String apiSuccessStatus = "1";
   static String apiSuccess = "success";
+  static String testUserId = "357";
 }

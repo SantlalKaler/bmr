@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../controllers/task_controller.dart';
 import '../widgets/top_app_bar.dart';
+import 'components/feed_quality_test.dart';
 import 'components/technical.dart';
 
 class TechnicalQuriesScreen extends StatefulWidget {
@@ -54,7 +55,7 @@ class _TechnicalQuriesScreenState extends State<TechnicalQuriesScreen>
                         controller: tabController,
                         children: const [
                           Technical(),
-                          Center(child: Text("Tomorrow's Tasks")),
+                          FeedQualityTest(),
                         ],
                       ),
                     ),

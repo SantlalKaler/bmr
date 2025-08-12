@@ -14,16 +14,22 @@ class CustomerController extends GetxController {
   RxBool loading = false.obs;
   RxBool createFarmerSuccess = false.obs;
   String? errorMessage;
+  Customer? selectedCustomer;
 
   ApiService apiService = ApiService();
 
   Rxn<String> selectedZone = Rxn<String>();
   Rxn<String> selectedState = Rxn<String>();
+  Rxn<String> selectedDealer = Rxn<String>();
   Rxn<String> selectedCity = Rxn<String>();
   RxInt selectedOwnOthers = 0.obs;
   RxInt selectedFarmerDealer = 0.obs;
   RxInt selectedActiveInactive = 0.obs;
   RxList<Customer> customers = RxList();
+  RxList<String> customersStringList = RxList();
+  RxList<String> customersStringFilterList = <String>[].obs;
+
+  // create a observable list of choice chip items
 
   List<ChoiceChipItem> ownOthers = [
     ChoiceChipItem(title: "OWN"),
@@ -44,14 +50,40 @@ class CustomerController extends GetxController {
 
   Future getCustomerList() async {
     setLoading();
+    customers.clear();
+    customersStringList.clear();
     var user = userController.user;
     try {
+      // todo: change user id with login user id
       var data = dio.FormData.fromMap({
-        "login_id": user!.eId,
+        "login_id": "357",
       });
       await apiService.post(AppUrls.getCustomerList, data).then(
         (response) {
-          Constant.printValue("Response of getCustomerList api is : $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            for (var cust in jsonData) {
+              customers.add(Customer.fromJson(cust));
+              // if customer first and last name is not empty then add them
+              // to the customersStringList
+              if (cust['first_name'] != null &&
+                  cust['last_name'] != null &&
+                  cust['first_name'].isNotEmpty &&
+                  cust['last_name'].isNotEmpty) {
+                customersStringList.add(
+                  "${cust['first_name']} ${cust['last_name']}".trim(),
+                );
+              }
+            }
+
+            Constant.printValue(
+                "Customer list size : ${customersStringList.length}");
+          }
+          customersStringFilterList.value = customersStringList;
         },
       );
     } finally {
@@ -115,7 +147,7 @@ class CustomerController extends GetxController {
               errorMessage = null;
             } else {
               createFarmerSuccess.value = false;
-              errorMessage = jsonData['success_message'];
+              errorMessage = jsonData['val'];
             }
           }
         },

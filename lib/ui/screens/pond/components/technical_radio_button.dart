@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 class TechnicalRadioButton extends StatefulWidget {
-  TechnicalRadioButton({super.key, required this.title});
+  TechnicalRadioButton(
+      {super.key, required this.title, required this.onChanged});
   String title;
+  // on change function
+  Function(String) onChanged;
 
   @override
   State<TechnicalRadioButton> createState() => _TechnicalRadioButtonState();
@@ -25,23 +28,25 @@ class _TechnicalRadioButtonState extends State<TechnicalRadioButton> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Radio(
-                value: 'yes',
+                value: "yes",
                 groupValue: _selectedOption,
                 onChanged: (value) {
                   setState(() {
                     _selectedOption = value;
                   });
+                  widget.onChanged("1");
                 },
               ),
               const Text('Yes'),
-              Gap(10),
+              const Gap(10),
               Radio<String>(
-                value: 'no',
+                value: "no",
                 groupValue: _selectedOption,
                 onChanged: (value) {
                   setState(() {
                     _selectedOption = value;
                   });
+                  widget.onChanged("0");
                 },
               ),
               const Text('No'),
