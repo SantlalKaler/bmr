@@ -26,6 +26,7 @@ class _SamplingScreenState extends State<SamplingScreen> {
   void initState() {
     super.initState();
     customerController.getCustomerList();
+    getCustomerSampling("");
   }
 
   getCustomerSampling(String customerName) {
@@ -47,7 +48,7 @@ class _SamplingScreenState extends State<SamplingScreen> {
         child: Column(
           children: [
             Obx(() => TextFieldWithDropdownSuggestion(
-                  list: const ['Customer 1', 'Customer 2', 'Customer 3'],
+                  list: customerController.customersStringList,
                   controller: customerName,
                   onSelect: () {
                     getCustomerSampling(customerName.text);

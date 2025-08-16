@@ -1,3 +1,4 @@
+import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -54,17 +55,19 @@ class _ViewTaskScreenState extends State<ViewTaskScreen>
                       ],
                     ),
                     Expanded(
-                      child: TabBarView(
-                        controller: tabController,
-                        children: const [
-                          Center(child: Text("Tasks")),
-                          Center(child: Text("Tasks")),
-                          Center(child: Text("Tasks")),
-                          Center(child: Text("Tasks")),
-                          Center(child: Text("Tasks")),
-                          Center(child: Text("Tasks")),
-                        ],
-                      ),
+                      child: Obx(() => taskController.loading.isTrue
+                          ? AppLoader()
+                          : TabBarView(
+                              controller: tabController,
+                              children: const [
+                                Center(child: Text("No Data Found")),
+                                Center(child: Text("No Data Found")),
+                                Center(child: Text("No Data Found")),
+                                Center(child: Text("No Data Found")),
+                                Center(child: Text("No Data Found")),
+                                Center(child: Text("No Data Found")),
+                              ],
+                            )),
                     ),
                   ],
                 ),

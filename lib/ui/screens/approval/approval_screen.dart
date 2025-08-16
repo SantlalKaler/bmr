@@ -1,7 +1,12 @@
+import 'package:bmr/controllers/custom_controller.dart';
+import 'package:bmr/controllers/user_controller.dart';
+import 'package:bmr/ui/screens/approval/components/leave_approval.dart';
 import 'package:bmr/ui/screens/approval/components/task_approval.dart';
+import 'package:bmr/utils/date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../controllers/leave_controller.dart';
 import '../../../controllers/task_controller.dart';
 import '../widgets/top_app_bar.dart';
 
@@ -15,14 +20,36 @@ class ApprovalScreen extends StatefulWidget {
 class _ApprovalScreenState extends State<ApprovalScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  TaskController currentDayTaskController = Get.find();
+  TaskController taskController = Get.find();
+  CustomController customController = Get.find();
+  LeaveController leaveController = Get.find();
   @override
   void initState() {
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
-      currentDayTaskController.changeTabIndex(tabController.index);
+      taskController.changeTabIndex(tabController.index);
+      getApproval();
     });
     super.initState();
+    customController.getZoneList();
+    getApproval();
+  }
+
+  void getApproval() async {
+    UserController userController = Get.find();
+    String empId = userController.user?.eId ?? '';
+    String regionId = userController.user?.regionId ?? '';
+    if (tabController.index == 0) {
+      await taskController.getPendingTaskApprovalList(
+          empId: empId,
+          regionId: regionId,
+          fromDate:
+              DateConverter.convertDate(DateTime.now(), format: "dd-MM-yyyy"),
+          toDate:
+              DateConverter.convertDate(DateTime.now(), format: "dd-MM-yyyy"));
+    } else {
+      await leaveController.getLeaveApprovalList();
+    }
   }
 
   @override
@@ -51,10 +78,7 @@ class _ApprovalScreenState extends State<ApprovalScreen>
                   Expanded(
                     child: TabBarView(
                       controller: tabController,
-                      children: const [
-                        TaskApproval(),
-                        Center(child: Text("Leave Approval")),
-                      ],
+                      children: const [TaskApproval(), LeaveApproval()],
                     ),
                   ),
                 ],

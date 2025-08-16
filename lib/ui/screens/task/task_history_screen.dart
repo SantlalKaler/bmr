@@ -1,9 +1,15 @@
+import 'package:bmr/controllers/custom_controller.dart';
+import 'package:bmr/controllers/task_controller.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
+import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
+import '../../../controllers/customer_controller.dart';
 import '../widgets/top_app_bar.dart';
 import 'components/single_task_history.dart';
 
@@ -17,83 +23,146 @@ class TaskHistoryScreen extends StatefulWidget {
 class _TaskHistoryScreenState extends State<TaskHistoryScreen> {
   String? selectedValue;
 
-  final List<String> items = ['Option 1', 'Option 2', 'Option 3'];
+  TaskController taskController = Get.find();
+  CustomController customController = Get.find();
+  CustomerController customerController = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    if (customController.zoneListSting.isEmpty) {
+      customController.getZoneList();
+    }
+    taskController.resetValues();
+    getTaskHistory();
+  }
+
+  getTaskHistory() {
+    var zoneId =
+        customerController.getSelectedZoneId(selectedZoneValue: selectedValue);
+    taskController.getTaskList(
+        regionId: zoneId,
+        fromDateValue: taskController.startDate.value,
+        toDateValue: taskController.endDate.value);
+  }
 
   void showFilterHistoryDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Select Region"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButton(
-              value: selectedValue,
-              hint: const Text("Option 1"),
-              isExpanded: true, // Makes dropdown full width
-              items: items.map((String item) {
-                return DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(item),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedValue = newValue!;
-                });
-              },
-            ),
-            Gap(20),
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsetsGeometry.all(10),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Colors.grey.shade100),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(
-                    Icons.calendar_month,
-                    color: primaryColor,
-                  ),
-                  Gap(10),
-                  Expanded(child: Text("20-01-2024")),
-                  Gap(10),
-                  Icon(
-                    Icons.calendar_month,
-                    color: primaryColor,
-                  ),
-                  Gap(10),
-                  Expanded(child: Text("20-01-2025")),
-                ],
-              ),
-            ),
-            Gap(20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: const Text("Select Region"),
+        content: Obx(() => Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    child: const Text("Cancel"),
+                DropdownButton(
+                  value: selectedValue,
+                  hint: const Text("Select Zone"),
+                  isExpanded: true, // Makes dropdown full width
+                  items: customController.zoneListSting.map((String item) {
+                    return DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(item),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedValue = newValue!;
+                    });
+                  },
+                ),
+                const Gap(20),
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsetsGeometry.all(10),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.grey.shade100),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Icon(
+                        Icons.calendar_month,
+                        color: primaryColor,
+                      ),
+                      const Gap(10),
+                      // open calendar when user click on it and save the data in local varibale
+                      Expanded(
+                          child: GestureDetector(
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate:
+                                      DateTime.now(), // restrict past dates
+                                  lastDate: DateTime(2100), // adjust as needed
+                                );
+
+                                if (pickedDate != null) {
+                                  setState(() {
+                                    taskController.startDate.value =
+                                        DateFormat('dd-MM-yyyy').format(
+                                            pickedDate); // or use your preferred format
+                                  });
+                                }
+                              },
+                              child: Text(taskController.startDate.value.isEmpty
+                                  ? "Start Date"
+                                  : taskController.startDate.value))),
+                      const Gap(10),
+                      Icon(
+                        Icons.calendar_month,
+                        color: primaryColor,
+                      ),
+                      const Gap(10),
+                      Expanded(
+                          child: GestureDetector(
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate:
+                                      DateTime.now(), // restrict past dates
+                                  lastDate: DateTime(2100), // adjust as needed
+                                );
+
+                                if (pickedDate != null) {
+                                  taskController.endDate.value =
+                                      DateFormat('dd-MM-yyyy')
+                                          .format(pickedDate);
+                                }
+                              },
+                              child: Text(taskController.endDate.value.isEmpty
+                                  ? "End Date"
+                                  : taskController.endDate.value))),
+                    ],
                   ),
                 ),
-                Gap(10),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    child: const Text("Submit"),
-                  ),
+                const Gap(20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        child: const Text("Cancel"),
+                      ),
+                    ),
+                    const Gap(10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          getTaskHistory();
+                          context.pop();
+                        },
+                        child: const Text("Submit"),
+                      ),
+                    )
+                  ],
                 )
               ],
-            )
-          ],
-        ),
+            )),
       ),
     );
   }
@@ -101,7 +170,7 @@ class _TaskHistoryScreenState extends State<TaskHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
+      appBar: const PreferredSize(
         preferredSize: Size(double.infinity, 120),
         child: TopAppBar(
           title: "Task History",
@@ -118,27 +187,35 @@ class _TaskHistoryScreenState extends State<TaskHistoryScreen> {
               child: TextField(
                 enabled: false,
                 readOnly: true,
-                decoration: InputDecoration(
+                controller: TextEditingController(
+                    text: taskController.selectedRegion.value),
+                decoration: const InputDecoration(
                   hintText: "Region Name",
                 ),
               ),
             ),
           ),
           const Gap(10),
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.only(bottom: 20),
-              shrinkWrap: true,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
-                  child: SingleTaskHistory(),
-                );
-              },
-            ),
-          ),
+          Obx(() => Expanded(
+                child: taskController.loading.isTrue
+                    ? AppLoader()
+                    : taskController.taskList.isEmpty
+                        ? const Text("No task history found.")
+                        : ListView.builder(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            shrinkWrap: true,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: taskController.taskList.length,
+                            itemBuilder: (context, index) {
+                              var task = taskController.taskList[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 20),
+                                child: SingleTaskHistory(task: task),
+                              );
+                            },
+                          ),
+              )),
         ],
       ),
     );

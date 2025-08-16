@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/ui/constants/strings_constants.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
@@ -74,15 +75,21 @@ class LeaveController extends GetxController {
     }
   }
 
-  Future getLeaveApprovalList(String empId) async {
+  Future getLeaveApprovalList() async {
+    setLoading();
+    UserController userController = Get.find();
     try {
       var data = {
-        "emp_id": empId,
+        "emp_id": userController.user!.eId!,
       };
       await apiService.post(AppUrls.getLeaveApprovalList, data).then(
         (response) {
-          Constant.printValue(
-              "Response of getLeaveApprovalList API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+          }
         },
       );
     } finally {

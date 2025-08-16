@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bmr/controllers/custom_controller.dart';
 import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/data/model/customer.dart';
 import 'package:dio/dio.dart' as dio;
@@ -89,6 +90,21 @@ class CustomerController extends GetxController {
     } finally {
       setLoading();
     }
+  }
+
+  String? getSelectedZoneId({String? selectedZoneValue}) {
+    CustomController customController = Get.find();
+    final selected = selectedZoneValue ?? selectedZone.value;
+    if (selected == null) return null;
+
+    final matchedZone = customController.zoneList.firstWhereOrNull(
+      (zone) => zone.zoneName == selected,
+    );
+
+    Constant.printValue(
+        "Matched Zone: ${matchedZone?.id}\n Match zone name : ${matchedZone?.zoneName}\n Selected Zone: $selected");
+
+    return matchedZone?.id;
   }
 
   String? getCustomerIdByName(String name) {

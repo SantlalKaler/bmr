@@ -211,7 +211,8 @@ class EmployeeController extends GetxController {
   RxString hoursLogged = "00 hours 00 minutes".obs;
   void getHoursLoggedTime() {
     // subtract check in time from current time
-    if (dayInVerificationModel != null) {
+    if (dayInVerificationModel != null &&
+        dayInVerificationModel!.checkinTime != null) {
       var checkInTime = DateTime.parse(dayInVerificationModel!.checkinTime!);
       var currentTime = DateTime.now();
       var difference = currentTime.difference(checkInTime);
@@ -284,15 +285,35 @@ class EmployeeController extends GetxController {
     }
   }
 
-  Future regionBasedEmployeeList() async {
+  Future regionBasedEmployeeList(String regionId) async {
+    setLoading();
+
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "region_id": "",
-        "login_id": "",
-      };
+        "login_id": userController.user!.eId,
+      });
       await apiService.post(AppUrls.getregionemployeelist, data).then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          Constant.printValue(
+              "Response of region based employee list api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            employeeList.clear();
+            employeeListString.clear();
+
+            for (var item in jsonData) {
+              employeeList.add(Employee.fromJson(item));
+
+              // Add employee name to the string list combine first and last name
+              String employeeName = "${item['firstname']} ${item['lastname']}";
+              employeeListString.add(employeeName);
+            }
+          }
         },
       );
     } finally {

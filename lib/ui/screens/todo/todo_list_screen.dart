@@ -1,9 +1,12 @@
+import 'package:bmr/controllers/todo_controller.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
+import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../controllers/task_controller.dart';
+import '../../../controllers/user_controller.dart';
 import '../widgets/top_app_bar.dart';
 
 class ToDoListScreen extends StatefulWidget {
@@ -16,15 +19,30 @@ class ToDoListScreen extends StatefulWidget {
 class _ToDoListScreenState extends State<ToDoListScreen>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  TaskController currentDayTaskController = Get.find();
+  TaskController taskController = Get.find();
+  TodoController todoController = Get.find();
 
   @override
   void initState() {
+    super.initState();
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
-      currentDayTaskController.changeTabIndex(tabController.index);
+      taskController.changeTabIndex(tabController.index);
+      getTodoList();
     });
-    super.initState();
+    getTodoList();
+  }
+
+  void getTodoList() async {
+    UserController userController = Get.find();
+    String empId = userController.user?.eId ?? '';
+    if (tabController.index == 0) {
+      await todoController.getMyTodoList(
+          empId: empId, assigneeType: "", priority: "", status: "");
+    } else {
+      await todoController.getTasksAssignedByMe(
+          empId: empId, assigneeType: '', priority: '', status: '');
+    }
   }
 
   @override
@@ -53,15 +71,19 @@ class _ToDoListScreenState extends State<ToDoListScreen>
                         Tab(text: "Assigned By Me"),
                       ],
                     ),
-                    Expanded(
-                      child: TabBarView(
-                        controller: tabController,
-                        children: const [
-                          Center(child: Text("Tomorrow's Tasks")),
-                          Center(child: Text("Tomorrow's Tasks")),
-                        ],
+                    Obx(
+                      () => Expanded(
+                        child: todoController.loading.isTrue
+                            ? AppLoader()
+                            : TabBarView(
+                                controller: tabController,
+                                children: const [
+                                  Center(child: Text("No to-do tasks found")),
+                                  Center(child: Text("No to-do tasks found")),
+                                ],
+                              ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),

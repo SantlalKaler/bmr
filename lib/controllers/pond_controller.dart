@@ -1,8 +1,12 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
 import '../ui/constants/constant.dart';
+import '../ui/constants/strings_constants.dart';
 
 class PondController extends GetxController {
   RxBool loading = false.obs;
@@ -10,6 +14,7 @@ class PondController extends GetxController {
   ApiService apiService = ApiService();
 
   setLoading() => loading.value = !loading.value;
+  RxBool pondSamplingListHasData = false.obs;
 
   Future createPond({
     required String empId,
@@ -133,12 +138,27 @@ class PondController extends GetxController {
   }
 
   Future getPondSamplingList(String customerId) async {
+    setLoading();
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "cust_id": customerId,
-      };
+      });
       await apiService.post(AppUrls.getPondSamplingList, data).then(
         (response) {
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            Constant.printValue(
+                "Response of create task API: ${jsonData['success']}");
+            if (jsonData['success'].toString() ==
+                StringConstants.apiSuccessStatus) {
+              pondSamplingListHasData.value = true;
+            } else {
+              pondSamplingListHasData.value = false;
+            }
+          }
           Constant.printValue("Response of getPondSamplingList API: $response");
         },
       );

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bmr/controllers/customer_controller.dart';
 import 'package:bmr/controllers/employee_controller.dart';
 import 'package:bmr/controllers/user_controller.dart';
+import 'package:bmr/data/model/task.dart';
 import 'package:bmr/ui/constants/strings_constants.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
@@ -11,18 +12,28 @@ import 'package:intl/intl.dart';
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
 import '../ui/constants/constant.dart';
-import '../ui/elements/app_snackbar.dart';
 import '../ui/model/choice_chip_item.dart';
 
 class TaskController extends GetxController {
   RxBool loading = false.obs;
+  RxBool checkInLoading = false.obs;
+  RxBool apiCallSuccess = false.obs;
 
   ApiService apiService = ApiService();
+  String? errorMessage;
 
   setLoading() => loading.value = !loading.value;
+  setTaskCheckInLoading() => checkInLoading.value = !checkInLoading.value;
   UserController userController = Get.find();
+  RxString selectedRegion = "".obs;
 
   RxInt tabIndex = 0.obs;
+
+  // create a observable task list
+  RxList<Task> taskList = <Task>[].obs;
+
+  RxString startDate = "".obs;
+  RxString endDate = "".obs;
 
   void changeTabIndex(int index) {
     tabIndex.value = index;
@@ -56,6 +67,15 @@ class TaskController extends GetxController {
     return "$empId" "emp" "$formattedDateTime";
   }
 
+  void resetValues() {
+    startDate.value = "";
+    endDate.value = "";
+    selectedRegion.value = "";
+    tabIndex.value = 0;
+    taskList.clear();
+    selectedItem.value = 0;
+  }
+
   Future createTaskSummary(String description, String location, String taskType,
       String customerName, String transport, String employeeName) async {
     setLoading();
@@ -71,19 +91,19 @@ class TaskController extends GetxController {
     var employeeId = employeeController.getEmployeeIdByName(employeeName);
 
     try {
-      var taskSchedule = [
+      var taskSchedule = jsonEncode([
         {
           "description": description,
           "emp_id": employeeId,
           "image": "",
           "location": location,
           "task_type": taskType,
-          "time": currentDate,
+          "time": currentDate.toString(),
           "transport": transport,
           "customer_id": customerId
         }
-      ];
-      var data = {
+      ]);
+      var data = dio.FormData.fromMap({
         "task_id": taskId,
         "task_date": taskDate,
         "created_by_id": userId,
@@ -91,7 +111,7 @@ class TaskController extends GetxController {
         "assigned_by_id": userId,
         "created_date": taskDate,
         "taskSchedule": taskSchedule,
-      };
+      });
 
       Constant.printValue("Data of create task : ${data}");
       await apiService.post(AppUrls.createtasksummaryapi, data).then(
@@ -101,17 +121,15 @@ class TaskController extends GetxController {
             if (jsonData is String) {
               jsonData = json.decode(jsonData);
             }
-
-            if (jsonData['success'] == StringConstants.apiSuccessStatus) {
-              AppSnackBar.showSnackBar(
-                "Task created successfully",
-              );
+            Constant.printValue(
+                "Response of create task API: ${jsonData['success']}");
+            if (jsonData['success'].toString() ==
+                StringConstants.apiSuccessStatus) {
+              apiCallSuccess.value = true;
               // get tasks
               getCurrentDayTaskList();
             } else {
-              AppSnackBar.showSnackBar(
-                "Failed to create task",
-              );
+              apiCallSuccess.value = false;
             }
           }
         },
@@ -142,7 +160,9 @@ class TaskController extends GetxController {
     }
   }
 
-  Future getTaskList() async {
+  Future getTaskList(
+      {String? regionId, String? fromDateValue, String? toDateValue}) async {
+    setLoading();
     UserController userController = Get.find();
     var user = userController.user;
     var fromDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
@@ -150,13 +170,28 @@ class TaskController extends GetxController {
     try {
       var data = dio.FormData.fromMap({
         "emp_id": user!.eId,
-        "region_id": user.regionId,
-        "from_date": fromDate,
-        "to_date": toDate,
+        "region_id": regionId ?? user.regionId,
+        "from_date": fromDateValue == null || fromDateValue.isEmpty
+            ? fromDate
+            : fromDateValue,
+        "to_date":
+            toDateValue == null || toDateValue.isEmpty ? toDate : toDateValue,
       });
       await apiService.post(AppUrls.getTaskList, data).then(
-            (response) {},
-          );
+        (response) {
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            taskList.clear(); // Clear the task list before adding new data
+            for (var item in jsonData) {
+              Task task = Task.fromJson(item);
+              taskList.add(task);
+            }
+          }
+        },
+      );
     } finally {
       setLoading();
     }
@@ -168,17 +203,27 @@ class TaskController extends GetxController {
     required String fromDate,
     required String toDate,
   }) async {
+    setLoading();
+    taskList.clear(); // Clear the task list before fetching new data
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "emp_id": empId,
         "region_id": regionId,
         "from_date": fromDate,
         "to_date": toDate,
-      };
+      });
       await apiService.post(AppUrls.getPendingTaskApprovalList, data).then(
         (response) {
-          Constant.printValue(
-              "Response of getPendingTaskApprovalList API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            for (var item in jsonData) {
+              Task task = Task.fromJson(item);
+              taskList.add(task);
+            }
+          }
         },
       );
     } finally {
@@ -241,23 +286,37 @@ class TaskController extends GetxController {
   Future taskCheckIn({
     required String tdId,
     required String checkIn,
-    required String geoCheckin,
+    required Map geoCheckin,
     required String empId,
   }) async {
     try {
-      var data = {
+      setTaskCheckInLoading();
+      var data = dio.FormData.fromMap({
         "td_id": tdId,
         "check_in": checkIn,
         "geo_checkin": geoCheckin,
         "login_id": empId,
-      };
+      });
       await apiService.post(AppUrls.taskCheckIn, data).then(
         (response) {
-          Constant.printValue("Response of taskCheckIn API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            if (jsonData['checkin_status'].toString() ==
+                StringConstants.apiSuccessStatus) {
+              apiCallSuccess.value = true;
+              errorMessage = null;
+            } else {
+              apiCallSuccess.value = false;
+              errorMessage = jsonData['message'] ?? "Failed to check in";
+            }
+          }
         },
       );
     } finally {
-      setLoading();
+      setTaskCheckInLoading();
     }
   }
 
@@ -335,30 +394,6 @@ class TaskController extends GetxController {
       await apiService.post(AppUrls.getTaskById, data).then(
         (response) {
           Constant.printValue("Response of getTaskById API: $response");
-        },
-      );
-    } finally {
-      setLoading();
-    }
-  }
-
-  Future getTasksAssignedByMe({
-    required String empId,
-    required String assigneeType,
-    required String priority,
-    required String status,
-  }) async {
-    try {
-      var data = {
-        "emp_id": empId,
-        "assignee_type": assigneeType,
-        "priority": priority,
-        "status": status,
-      };
-      await apiService.post(AppUrls.getTasksAssignedByMe, data).then(
-        (response) {
-          Constant.printValue(
-              "Response of getTasksAssignedByMe api is : $response");
         },
       );
     } finally {

@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/data/model/StateItem.dart';
 import 'package:bmr/data/model/Zone.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
@@ -18,6 +20,7 @@ class CustomController extends GetxController {
   ApiService apiService = ApiService();
 
   RxList<Zone> zoneList = RxList();
+  RxList<Zone> customerZoneList = RxList();
   RxList<Dealer> dealerList = RxList();
   RxList<String> dealerListSting = RxList();
   RxList<String> zoneListSting = RxList();
@@ -54,13 +57,26 @@ class CustomController extends GetxController {
   }
 
   Future getRegionList() async {
+    setLoading();
+    UserController userController = Get.find();
+    customerZoneList.clear();
     try {
-      var data = {
-        "login_id": "",
-      };
+      var data = dio.FormData.fromMap({
+        "login_id": userController.user!.eId,
+      });
+
       await apiService.post(AppUrls.getregionlist, data).then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            for (var value in jsonData) {
+              customerZoneList.add(Zone.fromJson(value));
+            }
+          }
         },
       );
     } finally {

@@ -12,7 +12,6 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../controllers/customer_controller.dart';
-import '../../constants/constant.dart';
 import '../widgets/app_choice_chip.dart';
 
 class CreateFarmerScreen extends StatefulWidget {
@@ -80,7 +79,7 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                           onChanged: (String? newValue) {
                             customerController.selectedZone.value =
                                 newValue ?? "";
-                            getSelectedZoneId();
+                            customerController.getSelectedZoneId();
                           },
                         ),
                         const Gap(10),
@@ -216,7 +215,8 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                             if (customerController.selectedOwnOthers.value ==
                                 1) {
                               // get zone id from selected zone
-                              var zoneId = getSelectedZoneId();
+                              var zoneId =
+                                  customerController.getSelectedZoneId();
                               // if zoneId is not null, get dealers list
                               if (zoneId != null) {
                                 customController.getDealersList(zoneId);
@@ -354,7 +354,7 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
       address2: address2Controller.text,
       city: customerController.selectedCity.value ?? "",
       state: customerController.selectedState.value ?? "",
-      zone: getSelectedZoneId() ?? "1",
+      zone: customerController.getSelectedZoneId() ?? "1",
       comments: commentsController.text,
       // if farmer then category is 2, if dealer then 1
       category: customerController.selectedFarmerDealer.value == 0 ? "2" : "1",
@@ -373,19 +373,5 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
       AppSnackBar.showSnackBar(customerController.errorMessage ??
           StringConstants.somethingWentWrong);
     }
-  }
-
-  String? getSelectedZoneId() {
-    final selected = customerController.selectedZone.value;
-    if (selected == null) return null;
-
-    final matchedZone = customController.zoneList.firstWhereOrNull(
-      (zone) => zone.zoneName == selected,
-    );
-
-    Constant.printValue(
-        "Matched Zone: ${matchedZone?.id}\n Match zone name : ${matchedZone?.zoneName}\n Selected Zone: $selected");
-
-    return matchedZone?.id;
   }
 }

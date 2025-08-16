@@ -1,6 +1,12 @@
+import 'package:bmr/controllers/map_controller.dart';
+import 'package:bmr/controllers/task_controller.dart';
+import 'package:bmr/controllers/user_controller.dart';
+import 'package:bmr/ui/elements/app_loader.dart';
+import 'package:bmr/ui/elements/app_snackbar.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 
 import 'visit_details_dialog.dart';
 
@@ -13,6 +19,9 @@ class SingleTask extends StatefulWidget {
 
 class _SingleTaskState extends State<SingleTask> {
   bool _showDetails = false;
+  TaskController taskController = Get.find();
+  MapController mapController = Get.find();
+  UserController userController = Get.find();
 
   void showVisitDetailsDialogs(BuildContext context) {
     showDialog(
@@ -113,31 +122,37 @@ class _SingleTaskState extends State<SingleTask> {
                     const Gap(10),
                     Row(
                       children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: null,
-                            child: Container(
-                                alignment: Alignment.center,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  gradient: LinearGradient(
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                    colors: [
-                                      Theme.of(context).primaryColor,
-                                      primaryColorDark,
-                                      Theme.of(context).primaryColor,
-                                    ],
-                                  ),
-                                ),
-                                child: const Text(
-                                  "CheckIn",
-                                  style: TextStyle(color: Colors.white),
-                                )),
-                          ),
-                        ),
+                        Obx(() => Expanded(
+                              child: taskController.checkInLoading.isTrue
+                                  ? const AppLoader()
+                                  : GestureDetector(
+                                      onTap: () {
+                                        taskCheckIn();
+                                      },
+                                      child: Container(
+                                          alignment: Alignment.center,
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            gradient: LinearGradient(
+                                              begin: Alignment.centerLeft,
+                                              end: Alignment.centerRight,
+                                              colors: [
+                                                Theme.of(context).primaryColor,
+                                                primaryColorDark,
+                                                Theme.of(context).primaryColor,
+                                              ],
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            "CheckIn",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )),
+                                    ),
+                            )),
                         const SizedBox(width: 8),
                         Expanded(
                           child: GestureDetector(
@@ -183,5 +198,28 @@ class _SingleTaskState extends State<SingleTask> {
         ),
       ),
     );
+  }
+
+  void taskCheckIn() async {
+    await taskController.taskCheckIn(
+        // todo: send task id here
+        tdId: "tdId",
+        checkIn: DateTime.now().toString(),
+        geoCheckin: {
+          "lat": mapController.currentLocation?.latitude ?? "",
+          "lon": mapController.currentLocation?.longitude ?? "",
+        },
+        empId: userController.user!.eId!);
+
+    if (taskController.apiCallSuccess.isTrue) {
+      AppSnackBar.showSnackBar(
+        title: "Task CheckIn Successful",
+        "You have successfully checked in to the task.",
+      );
+    } else {
+      AppSnackBar.showSnackBar(
+        taskController.errorMessage,
+      );
+    }
   }
 }

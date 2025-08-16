@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:bmr/controllers/sampling_controller.dart';
+import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
 import 'package:bmr/ui/elements/app_loader.dart';
+import 'package:bmr/ui/elements/app_snackbar.dart';
 import 'package:bmr/ui/screens/widgets/top_app_bar.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -196,13 +199,15 @@ class _CreateSamplingScreenState extends State<CreateSamplingScreen> {
                             ],
                           )),
                   const Gap(30),
-                  ElevatedButton(
+                  Obx(() => ElevatedButton(
                       onPressed: () {
                         createSampling();
                       },
                       child: samplingController.loading.isTrue
-                          ? const AppLoader()
-                          : const Text("SUBMIT"))
+                          ? const AppLoader(
+                              color: Colors.white,
+                            )
+                          : const Text("SUBMIT")))
                 ]),
           ),
         ));
@@ -272,12 +277,13 @@ class _CreateSamplingScreenState extends State<CreateSamplingScreen> {
   }
 
   createSampling() async {
+    UserController userController = Get.find();
     await samplingController.createSamplingWithFile(
         taskId: "",
         pondId: "",
         custId: "",
         cycleId: "",
-        empId: "",
+        empId: userController.user!.eId!,
         newCycle: "",
         cultureSeedDate: "",
         doc: doc.text,
@@ -290,5 +296,12 @@ class _CreateSamplingScreenState extends State<CreateSamplingScreen> {
         dailyFeed: dailyFeed.text,
         adg: adg.text,
         filePath: imagePath ?? "");
+
+    if (samplingController.errorMessage != null) {
+      AppSnackBar.showSnackBar(samplingController.errorMessage);
+    } else {
+      AppSnackBar.showSnackBar("Sampling created successfully");
+      context.pop();
+    }
   }
 }

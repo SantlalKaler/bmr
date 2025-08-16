@@ -1,3 +1,4 @@
+import 'package:bmr/ui/constants/constant.dart';
 import 'package:bmr/ui/screens/approval/approval_screen.dart';
 import 'package:bmr/ui/screens/date_in_out/day_in_out_screen.dart';
 import 'package:bmr/ui/screens/farmer/create_farmer_screen.dart';
@@ -176,7 +177,12 @@ final GoRouter mobileRoutes = GoRouter(
     GoRoute(
       path: AppPath.employeeRouteHistory,
       name: AppPath.employeeRouteHistory,
-      builder: (context, state) => const EmployeeRouteHistory(),
+      builder: (context, state) {
+        // Extract the regionId from the state if available, otherwise use an empty string
+        final regionId = state.extra as String?;
+        Constant.printValue("Region id passes is ${regionId}");
+        return EmployeeRouteHistory(regionId: regionId!);
+      },
     ),
     GoRoute(
       path: AppPath.approval,

@@ -62,6 +62,7 @@ class ApiService {
   Future<Response?> post(String path, dynamic data,
       {bool? isAuthorized,
       bool hasQueryParam = false,
+      bool isFormUrlEncoded = true,
       Map<String, dynamic>? queryParam,
       Map<String, dynamic>? additionalHeaders,
       bool? customBaseURI}) async {
@@ -78,13 +79,13 @@ class ApiService {
       }
 
       try {
-        /*const contentType = */ /*isFormUrlEncoded
+        final contentType = isFormUrlEncoded
             ? Headers.formUrlEncodedContentType
-            :*/ /* Headers.formUrlEncodedContentType;*/
+            : Headers.formUrlEncodedContentType;
 
         final options = Options(
           headers: headers,
-          // contentType: contentType, // <--- here
+          contentType: contentType, // <--- here
           sendTimeout: const Duration(minutes: 5),
         );
 

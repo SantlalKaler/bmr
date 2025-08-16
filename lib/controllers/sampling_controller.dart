@@ -1,15 +1,18 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
 import '../ui/constants/constant.dart';
+import '../ui/constants/strings_constants.dart';
 
 class SamplingController extends GetxController {
   RxBool loading = false.obs;
 
   ApiService apiService = ApiService();
-
+  String? errorMessage;
   setLoading() => loading.value = !loading.value;
 
   Future createSampling({
@@ -154,8 +157,22 @@ class SamplingController extends GetxController {
       });
 
       await apiService.post(AppUrls.createSampling, formData).then(
-            (response) {},
-          );
+        (response) {
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+              if (jsonData['success'].toString() ==
+                  StringConstants.apiSuccessStatus) {
+                errorMessage = null;
+              } else {
+                errorMessage =
+                    jsonData['message'] ?? StringConstants.somethingWentWrong;
+              }
+            }
+          }
+        },
+      );
     } finally {
       setLoading();
     }

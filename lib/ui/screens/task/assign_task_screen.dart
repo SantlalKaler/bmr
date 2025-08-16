@@ -5,6 +5,7 @@ import 'package:bmr/ui/elements/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../controllers/customer_controller.dart';
@@ -63,15 +64,7 @@ class _AssignTaskScreenState extends State<AssignTaskScreen> {
             ),
             floatingActionButton: Obx(() => GestureDetector(
                   onTap: () {
-                    if (validateForm()) {
-                      controller.createTaskSummary(
-                          description.text,
-                          location.text,
-                          "0",
-                          customerName.text,
-                          controller.selectedItem.value.toString(),
-                          assignTo.text);
-                    }
+                    createTask();
                   },
                   child: Container(
                     height: 40,
@@ -180,5 +173,25 @@ class _AssignTaskScreenState extends State<AssignTaskScreen> {
             ),
           );
         });
+  }
+
+  createTask() async {
+    if (validateForm()) {
+      await createTaskController.createTaskSummary(
+        description.text,
+        location.text,
+        "0",
+        customerName.text,
+        createTaskController.selectedItem.value.toString(),
+        assignTo.text,
+      );
+    }
+
+    if (createTaskController.apiCallSuccess.isTrue) {
+      AppSnackBar.showSnackBar("Task created successfully");
+      context.pop();
+    } else {
+      AppSnackBar.showSnackBar("Failed to create task");
+    }
   }
 }

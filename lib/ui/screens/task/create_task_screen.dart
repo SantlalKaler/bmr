@@ -4,6 +4,7 @@ import 'package:bmr/ui/elements/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../controllers/customer_controller.dart';
@@ -34,7 +35,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     customerController.getCustomerList();
   }
 
-  void createTaskSummary() {
+  void createTaskSummary() async {
     // check if all fields are filled
     if (description.text.isEmpty ||
         // location.text.isEmpty ||
@@ -45,8 +46,20 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       );
       return;
     } else {
-      taskController.createTaskSummary(description.text, location.text, "0",
-          taskController.selectedItem.value.toString(), customerName.text, "");
+      await taskController.createTaskSummary(
+          description.text,
+          location.text,
+          "0",
+          customerName.text,
+          taskController.selectedItem.value.toString(),
+          "");
+
+      if (taskController.apiCallSuccess.isTrue) {
+        AppSnackBar.showSnackBar("Task created successfully");
+        context.pop();
+      } else {
+        AppSnackBar.showSnackBar("Failed to create task");
+      }
     }
   }
 
@@ -75,7 +88,9 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: controller.loading.isTrue
-                        ? const AppLoader()
+                        ? const AppLoader(
+                            color: Colors.white,
+                          )
                         : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,

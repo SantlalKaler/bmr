@@ -1,15 +1,28 @@
+import 'package:bmr/controllers/employee_controller.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
 import 'package:bmr/ui/screens/widgets/top_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class EmployeeRouteHistory extends StatefulWidget {
-  const EmployeeRouteHistory({super.key});
+  const EmployeeRouteHistory({super.key, required this.regionId});
+  final String regionId;
 
   @override
   State<EmployeeRouteHistory> createState() => _EmployeeRouteHistoryState();
 }
 
 class _EmployeeRouteHistoryState extends State<EmployeeRouteHistory> {
+  EmployeeController employeeController = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.regionId != null && widget.regionId.isNotEmpty) {
+      employeeController.regionBasedEmployeeList(widget.regionId);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

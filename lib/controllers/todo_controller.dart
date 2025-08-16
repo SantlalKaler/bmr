@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
@@ -89,16 +92,22 @@ class TodoController extends GetxController {
     required String priority,
     required String status,
   }) async {
+    setLoading();
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "emp_id": empId,
         "assignee_type": assigneeType,
         "priority": priority,
         "status": status,
-      };
+      });
       await apiService.post(AppUrls.getMyTodoList, data).then(
         (response) {
-          Constant.printValue("Response of getMyTodoList api is : $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+          }
         },
       );
     } finally {
@@ -125,6 +134,36 @@ class TodoController extends GetxController {
         (response) {
           Constant.printValue(
               "Response of updateMyTodoTask api is : $response");
+        },
+      );
+    } finally {
+      setLoading();
+    }
+  }
+
+  Future getTasksAssignedByMe({
+    required String empId,
+    required String assigneeType,
+    required String priority,
+    required String status,
+  }) async {
+    try {
+      setLoading();
+      var data = dio.FormData.fromMap({
+        "emp_id": empId,
+        "assignee_type": assigneeType,
+        "priority": priority,
+        "status": status,
+      });
+      await apiService.post(AppUrls.getTasksAssignedByMe, data).then(
+        (response) {
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            for (var item in jsonData) {}
+          }
         },
       );
     } finally {

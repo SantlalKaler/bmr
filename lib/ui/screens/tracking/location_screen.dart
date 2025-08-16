@@ -1,9 +1,13 @@
+import 'package:bmr/controllers/custom_controller.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
+import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/routes/mobile_routes.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../data/model/Zone.dart';
 import '../widgets/top_app_bar.dart';
 
 class LocationScreen extends StatefulWidget {
@@ -14,6 +18,14 @@ class LocationScreen extends StatefulWidget {
 }
 
 class _LocationScreenState extends State<LocationScreen> {
+  CustomController customController = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    customController.getRegionList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,36 +36,40 @@ class _LocationScreenState extends State<LocationScreen> {
           title: "Regions",
         ),
       ),
-      body: ListView.builder(
-        padding: EdgeInsetsGeometry.all(DimensConstants.screenPadding),
-        itemCount: 4,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              context.push(AppPath.employeeRouteHistory);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white),
-                padding: const EdgeInsetsGeometry.all(10),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Expanded(child: Text("Ap-01")),
-                      Icon(
-                        Icons.arrow_circle_right,
-                        size: 30,
-                        color: primaryColor,
-                      )
-                    ]),
-              ),
-            ),
-          );
-        },
-      ),
+      body: Obx(() => customController.loading.isTrue
+          ? Center(child: AppLoader())
+          : ListView.builder(
+              padding: EdgeInsetsGeometry.all(DimensConstants.screenPadding),
+              itemCount: customController.customerZoneList.length,
+              itemBuilder: (context, index) {
+                Zone zone = customController.customerZoneList[index];
+                return GestureDetector(
+                  onTap: () {
+                    context.push(AppPath.employeeRouteHistory,
+                        extra: zone.id ?? "");
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white),
+                      padding: const EdgeInsetsGeometry.all(10),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(child: Text(zone.zoneName ?? "")),
+                            Icon(
+                              Icons.arrow_circle_right,
+                              size: 30,
+                              color: primaryColor,
+                            )
+                          ]),
+                    ),
+                  ),
+                );
+              },
+            )),
     );
   }
 }

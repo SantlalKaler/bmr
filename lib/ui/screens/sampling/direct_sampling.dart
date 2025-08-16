@@ -23,7 +23,6 @@ class _DirectSamplingScreenState extends State<DirectSamplingScreen> {
 
   @override
   void initState() {
-    super.initState();
     customerController.getCustomerList();
   }
 
@@ -57,7 +56,7 @@ class _DirectSamplingScreenState extends State<DirectSamplingScreen> {
               Padding(
                 padding: EdgeInsets.all(DimensConstants.screenPadding),
                 child: Obx(() => TextFieldWithDropdownSuggestion(
-                      list: const ['Customer 1', 'Customer 2', 'Customer 3'],
+                      list: customerController.customersStringList,
                       controller: customerName,
                       onSelect: () {
                         getCustomerSampling(customerName.text);

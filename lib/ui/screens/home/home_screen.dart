@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'title': 'Sampling',
         'color': Colors.red,
         'onTap': () {
-          context.push(AppPath.directSampling);
+          context.push(AppPath.sampling);
         },
         'icon': ImageConstants.sampling, // 🔍 Replace with appropriate icon
         'comment': 'Report Icon'
@@ -101,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'title': 'Harvest',
         'color': Colors.teal,
         'onTap': () {
-          context.push(AppPath.directHarvest);
+          context.push(AppPath.harvest);
         },
         'icon': ImageConstants.harvest, // 🔍 Replace with appropriate icon
         'comment': 'Report Icon'
