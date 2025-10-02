@@ -208,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Hello, ${authController.user?.empName}",
+                    "Hello, ${authController.user?.empName ?? ""}",
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Text(

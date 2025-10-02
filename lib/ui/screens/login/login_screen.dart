@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
           userNameController.text, passwordController.text);
       if (authController.loginSuccess.isTrue) {
         Fluttertoast.showToast(
-          msg: "Logic Successfully",
+          msg: "Login Successfully",
         );
         if (context.mounted) {
           context.pushReplacement(AppPath.homePath);
@@ -126,66 +126,63 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding:
             EdgeInsets.symmetric(horizontal: DimensConstants.screenPadding),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset(
-                ImageConstants.logo,
-                // height: 130,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              ImageConstants.logo,
+              // height: 130,
+            ),
+            Gap(DimensConstants.extraHighSpacing),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Username',
               ),
-              Gap(DimensConstants.extraHighSpacing),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Username',
+              controller: userNameController,
+            ),
+            Gap(DimensConstants.spaceBetweenViews),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Password',
+              ),
+              obscureText: true,
+              controller: passwordController,
+            ),
+            Gap(DimensConstants.spaceBetweenViews),
+            Row(
+              children: [
+                Obx(
+                  () => Checkbox(
+                      value: authController.rememberMe.value,
+                      shape: ContinuousRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(10)),
+                      onChanged: (value) {
+                        authController.rememberMe.value =
+                            !authController.rememberMe.value;
+                      }),
                 ),
-                controller: userNameController,
+                Gap(DimensConstants.spaceBetweenViews),
+                const Text("Remember Me")
+              ],
+            ),
+            Gap(DimensConstants.spaceBetweenViews),
+            Obx(
+              () => ElevatedButton(
+                onPressed: authController.loading.isFalse ? handleLogin : null,
+                child: authController.loading.isTrue
+                    ? const AppLoader(
+                        color: Colors.white,
+                      )
+                    : const Text("Login"),
               ),
-              Gap(DimensConstants.spaceBetweenViews),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                ),
-                obscureText: true,
-                controller: passwordController,
-              ),
-              Gap(DimensConstants.spaceBetweenViews),
-              Row(
-                children: [
-                  Obx(
-                    () => Checkbox(
-                        value: authController.rememberMe.value,
-                        shape: ContinuousRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(10)),
-                        onChanged: (value) {
-                          authController.rememberMe.value =
-                              !authController.rememberMe.value;
-                        }),
-                  ),
-                  Gap(DimensConstants.spaceBetweenViews),
-                  const Text("Remember Me")
-                ],
-              ),
-              Gap(DimensConstants.spaceBetweenViews),
-              Obx(
-                () => ElevatedButton(
-                  onPressed:
-                      authController.loading.isFalse ? handleLogin : null,
-                  child: authController.loading.isTrue
-                      ? const AppLoader(
-                          color: Colors.white,
-                        )
-                      : const Text("Login"),
-                ),
-              ),
-              const Gap(20),
-              OutlinedButton(
-                onPressed: showResetDialog,
-                child: const Text("Reset Session"),
-              ),
-            ],
-          ),
+            ),
+            const Gap(20),
+            OutlinedButton(
+              onPressed: showResetDialog,
+              child: const Text("Reset Session"),
+            ),
+          ],
         ),
       ),
     );

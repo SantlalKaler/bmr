@@ -47,11 +47,12 @@ class AuthController extends GetxController {
               jsonData = json.decode(jsonData);
             }
 
-            var user = User.fromJson(jsonData);
-            if (user.success == "1") {
+            var userInfo = User.fromJson(jsonData);
+            user = userInfo;
+            if (userInfo.success == "1") {
               // save user in local
               if (rememberMe.isTrue) {
-                await PrefData.saveUser(user);
+                await PrefData.saveUser(userInfo);
                 UserController userController = Get.find();
                 await userController.getUser();
               }
