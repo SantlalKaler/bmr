@@ -14,6 +14,7 @@ import '../ui/model/choice_chip_item.dart';
 class CustomerController extends GetxController {
   RxBool loading = false.obs;
   RxBool createFarmerSuccess = false.obs;
+  RxBool mobileAlreadyRegistered = false.obs;
   String? errorMessage;
   Customer? selectedCustomer;
 
@@ -55,9 +56,8 @@ class CustomerController extends GetxController {
     customersStringList.clear();
     var user = userController.user;
     try {
-      // todo: change user id with login user id
       var data = dio.FormData.fromMap({
-        "login_id": "357",
+        "login_id": userController.user!.eId!,
       });
       await apiService.post(AppUrls.getCustomerList, data).then(
         (response) {
@@ -221,18 +221,28 @@ class CustomerController extends GetxController {
     required String mobile,
   }) async {
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "emp_id": empId,
         "mobile": mobile,
-      };
+      });
       await apiService.post(AppUrls.checkCustomerDetails, data).then(
         (response) {
-          Constant.printValue(
-              "Response of checkCustomerDetails api is : $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+
+            if (jsonData['success'] == 1) {
+              mobileAlreadyRegistered.value = false;
+              errorMessage = null;
+            } else {
+              mobileAlreadyRegistered.value = true;
+              errorMessage = jsonData['success_message'];
+            }
+          }
         },
       );
-    } finally {
-      setLoading();
-    }
+    } finally {}
   }
 }

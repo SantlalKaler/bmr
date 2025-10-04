@@ -51,11 +51,11 @@ class AuthController extends GetxController {
             user = userInfo;
             if (userInfo.success == "1") {
               // save user in local
-              if (rememberMe.isTrue) {
-                await PrefData.saveUser(userInfo);
-                UserController userController = Get.find();
-                await userController.getUser();
-              }
+              // if (rememberMe.isTrue) {
+              await PrefData.saveUser(userInfo);
+              UserController userController = Get.find();
+              await userController.getUser();
+              // }
               loginSuccess.value = true;
             } else {
               errorMessage = jsonData['val'];
@@ -101,6 +101,7 @@ class AuthController extends GetxController {
             }
 
             if (jsonData['success'] == StringConstants.apiSuccessStatus) {
+              PrefData.clearUser();
               changePasswordSuccess.value = true;
             }
           }

@@ -64,22 +64,24 @@ class _DirectTechnicalScreenState extends State<DirectTechnicalScreen> {
                 Expanded(
                   child: Obx(() => customerController.loading.isTrue
                       ? Center(child: AppLoader())
-                      : ListView.builder(
-                          // shrinkWrap: true,
-                          itemCount: customerController
-                              .customersStringFilterList.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(customerController
-                                  .customersStringFilterList[index]),
-                              onTap: () {
-                                setSelectedCustomer(customerController
-                                    .customersStringFilterList[index]);
-                                context.push(AppPath.technicalQuries);
+                      : customerController.customersStringFilterList.isEmpty
+                          ? const Center(child: Text("No Customer Found!"))
+                          : ListView.builder(
+                              // shrinkWrap: true,
+                              itemCount: customerController
+                                  .customersStringFilterList.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text(customerController
+                                      .customersStringFilterList[index]),
+                                  onTap: () {
+                                    setSelectedCustomer(customerController
+                                        .customersStringFilterList[index]);
+                                    context.push(AppPath.technicalQuries);
+                                  },
+                                );
                               },
-                            );
-                          },
-                        )),
+                            )),
                 ),
               ]),
         ));

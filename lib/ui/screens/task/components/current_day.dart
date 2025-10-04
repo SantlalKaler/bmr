@@ -3,8 +3,11 @@ import 'package:bmr/utils/date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
+import '../../../../data/model/task.dart';
+
 class CurrentDay extends StatefulWidget {
-  const CurrentDay({super.key});
+  List<Task> taskList;
+  CurrentDay({super.key, required this.taskList});
 
   @override
   State<CurrentDay> createState() => _CurrentDayState();
@@ -26,11 +29,13 @@ class _CurrentDayState extends State<CurrentDay> {
             padding: EdgeInsets.only(bottom: 20),
             shrinkWrap: true,
             physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: 10,
+            itemCount: widget.taskList.length,
             itemBuilder: (context, index) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
-                child: SingleTask(),
+              var task = widget.taskList[index];
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+                child: SingleTask(task: task),
               );
             },
           ),

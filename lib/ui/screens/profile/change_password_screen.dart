@@ -4,6 +4,7 @@ import 'package:bmr/ui/constants/dimens_constants.dart';
 import 'package:bmr/ui/elements/app_button.dart';
 import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/elements/app_snackbar.dart';
+import 'package:bmr/ui/routes/mobile_routes.dart';
 import 'package:bmr/ui/screens/widgets/top_app_bar.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +103,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       if (authController.changePasswordSuccess.value) {
         AppSnackBar.showSnackBar("Password changed successfully.");
-        context.pop();
+        context.pushReplacement(AppPath.loginPath);
       } else {
         AppSnackBar.showSnackBar(
             authController.errorMessage ?? "Failed to change password.");

@@ -93,7 +93,7 @@ class _TaskHistoryScreenState extends State<TaskHistoryScreen> {
                                   context: context,
                                   initialDate: DateTime.now(),
                                   firstDate:
-                                      DateTime.now(), // restrict past dates
+                                      DateTime(2000), // restrict past dates
                                   lastDate: DateTime(2100), // adjust as needed
                                 );
 

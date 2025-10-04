@@ -85,8 +85,10 @@ class _CurrentDayTaskScreenState extends State<CurrentDayTaskScreen>
                           : Expanded(
                               child: TabBarView(
                                 controller: tabController,
-                                children: const [
-                                  CurrentDay(),
+                                children: [
+                                  CurrentDay(
+                                    taskList: taskController.taskList,
+                                  ),
                                   Center(child: Text("Tomorrow's Tasks")),
                                 ],
                               ),

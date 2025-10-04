@@ -1,6 +1,7 @@
 import 'package:bmr/controllers/map_controller.dart';
 import 'package:bmr/controllers/task_controller.dart';
 import 'package:bmr/controllers/user_controller.dart';
+import 'package:bmr/data/model/task.dart';
 import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/elements/app_snackbar.dart';
 import 'package:bmr/ui/theme_light.dart';
@@ -11,7 +12,8 @@ import 'package:get/get.dart';
 import 'visit_details_dialog.dart';
 
 class SingleTask extends StatefulWidget {
-  const SingleTask({super.key});
+  Task task;
+  SingleTask({super.key, required this.task});
 
   @override
   State<SingleTask> createState() => _SingleTaskState();
@@ -55,16 +57,16 @@ class _SingleTaskState extends State<SingleTask> {
                       Icons.supervised_user_circle_outlined,
                       color: primaryColorDark,
                     ),
-                    Gap(15),
+                    const Gap(15),
                     Text(
-                      "Xa Kaler",
+                      widget.task.sname ?? "",
                       style: TextStyle(
                           color: primaryColorDark, fontWeight: FontWeight.bold),
                     )
                   ],
                 ),
                 Text(
-                  "21 Jan 05:02 PM",
+                  widget.task.createdDate ?? "",
                   style: Theme.of(context).textTheme.bodySmall,
                 )
               ],
@@ -74,13 +76,13 @@ class _SingleTaskState extends State<SingleTask> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Approved",
+                  widget.task.status ?? "",
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-                Text(
-                  "General",
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                // Text(
+                //   "General",
+                //   style: Theme.of(context).textTheme.bodySmall,
+                // ),
                 IconButton(
                     onPressed: () {},
                     icon: Icon(
@@ -105,7 +107,7 @@ class _SingleTaskState extends State<SingleTask> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Chennai, Chennai, Chennai, Tamilnadu",
+                      widget.task.location ?? "",
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -113,7 +115,7 @@ class _SingleTaskState extends State<SingleTask> {
                     ),
                     const Gap(20),
                     Text(
-                      "Created By: Amanudeen",
+                      "Created By: ${widget.task.customername ?? ""}",
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -179,7 +181,7 @@ class _SingleTaskState extends State<SingleTask> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        "Comments: Meet the director",
+                        "Comments: ${widget.task.comments ?? ""}",
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall

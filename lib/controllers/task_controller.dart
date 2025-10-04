@@ -253,6 +253,11 @@ class TaskController extends GetxController {
             if (jsonData is String) {
               jsonData = json.decode(jsonData);
             }
+            taskList.clear(); // Clear the task list before adding new data
+            for (var item in jsonData) {
+              Task task = Task.fromJson(item);
+              taskList.add(task);
+            }
           }
         },
       );

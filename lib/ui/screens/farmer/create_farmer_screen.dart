@@ -127,14 +127,21 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                       ],
                     ),
                   ),
-                  TextField(
-                    controller: contactNoController,
-                    decoration: const InputDecoration(
-                      hintText: "Contact Number",
-                    ),
-                    keyboardType: TextInputType.phone,
-                    maxLength: 10,
-                  ),
+                  Obx(() => TextField(
+                      controller: contactNoController,
+                      decoration: InputDecoration(
+                          hintText: "Contact Number",
+                          errorText:
+                              customerController.mobileAlreadyRegistered.isTrue
+                                  ? customerController.errorMessage
+                                  : null),
+                      keyboardType: TextInputType.phone,
+                      maxLength: 10,
+                      onChanged: (value) {
+                        if (value.length == 10) {
+                          checkMobileNumberRegistered();
+                        }
+                      })),
                   const Gap(10),
                   TextField(
                     controller: firstNameController,
@@ -268,7 +275,10 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
                                     child: AppButton(
                                         title: "CREATE FARMER",
                                         onTap: () {
-                                          if (validateFrom()) {
+                                          if (customerController
+                                                  .mobileAlreadyRegistered
+                                                  .isFalse &&
+                                              validateFrom()) {
                                             createFarmer();
                                           }
                                         }),
@@ -341,6 +351,14 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
       return false;
     }
     return true;
+  }
+
+  checkMobileNumberRegistered() async {
+    await customerController.checkCustomerDetails(
+        empId: userController.user!.eId!, mobile: contactNoController.text);
+    if (customerController.errorMessage != null) {
+      AppSnackBar.showSnackBar(customerController.errorMessage);
+    }
   }
 
   createFarmer() async {
