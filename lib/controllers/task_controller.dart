@@ -21,6 +21,7 @@ class TaskController extends GetxController {
 
   ApiService apiService = ApiService();
   String? errorMessage;
+  Task? selectedTask;
 
   setLoading() => loading.value = !loading.value;
   setTaskCheckInLoading() => checkInLoading.value = !checkInLoading.value;
@@ -74,6 +75,7 @@ class TaskController extends GetxController {
     tabIndex.value = 0;
     taskList.clear();
     selectedItem.value = 0;
+    selectedTask = null;
   }
 
   Future createTaskSummary(String description, String location, String taskType,
@@ -87,20 +89,23 @@ class TaskController extends GetxController {
     var currentDate = DateTime.now();
     var taskId = generateTaskId(userId.toString());
     var taskDate = DateFormat('yyyy-MM-dd').format(currentDate);
+    var time = DateFormat("MMM dd yyyy HH:mm:ss").format(currentDate);
     var customerId = customerController.getCustomerIdByName(customerName);
+    var customerAddress =
+        customerController.getCustomerLocationByName(customerName);
     var employeeId = employeeController.getEmployeeIdByName(employeeName);
 
     try {
       var taskSchedule = jsonEncode([
         {
+          "customer_id": customerId,
           "description": description,
           "emp_id": employeeId,
           "image": "",
-          "location": location,
+          "location": customerAddress,
           "task_type": taskType,
-          "time": currentDate.toString(),
+          "time": time,
           "transport": transport,
-          "customer_id": customerId
         }
       ]);
       var data = dio.FormData.fromMap({
@@ -139,20 +144,66 @@ class TaskController extends GetxController {
     }
   }
 
-  Future updateTaskSummary() async {
+  Future updateTaskSummary(
+      String taskId,
+      String description,
+      String location,
+      String taskType,
+      String customerName,
+      String transport,
+      String employeeName) async {
+    setLoading();
+    CustomerController customerController = Get.find();
+    EmployeeController employeeController = Get.find();
+
+    var userId = userController.user!.eId;
+    var currentDate = DateTime.now();
+    var taskDate = DateFormat('yyyy-MM-dd').format(currentDate);
+    var time = DateFormat("MMM dd yyyy HH:mm:ss").format(currentDate);
+
+    var customerId = customerController.getCustomerIdByName(customerName);
+    var customerAddress =
+        customerController.getCustomerLocationByName(customerName);
+    var employeeId = employeeController.getEmployeeIdByName(employeeName);
     try {
-      var data = {
-        "task_id": "",
-        "td_id": "",
-        "task_date": "",
-        "created_by_id": "",
-        "approved_by": "",
-        "created_date": "",
-        "taskSchedule": "",
-      };
+      var taskSchedule = jsonEncode([
+        {
+          "customer_id": customerId,
+          "description": description,
+          "emp_id": userController.user!.eId!,
+          "image": "",
+          "location": location,
+          "task_type": taskType,
+          "time": time,
+          "transport": transport,
+        }
+      ]);
+
+      var data = dio.FormData.fromMap({
+        "task_id": taskId,
+        "td_id": taskId,
+        "task_date": taskDate,
+        "created_by_id": userId,
+        "approved_by": userId,
+        "created_date": taskDate,
+        "taskSchedule": taskSchedule,
+      });
       await apiService.post(AppUrls.updatetasksummaryapi, data).then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            if (jsonData['success'].toString() ==
+                StringConstants.apiSuccessStatus) {
+              apiCallSuccess.value = true;
+              // get tasks
+              getCurrentDayTaskList();
+            } else {
+              apiCallSuccess.value = false;
+            }
+          }
         },
       );
     } finally {
@@ -233,6 +284,7 @@ class TaskController extends GetxController {
 
   Future getCurrentDayTaskList() async {
     setLoading();
+    selectedTask = null;
     try {
       var user = userController.user;
       var empId = user!.eId;
@@ -268,6 +320,7 @@ class TaskController extends GetxController {
 
   Future getPendingTaskList() async {
     setLoading();
+    selectedTask = null;
     try {
       var userId = userController.user!.eId;
       var data = dio.FormData.fromMap({
@@ -280,6 +333,11 @@ class TaskController extends GetxController {
             if (jsonData is String) {
               jsonData = json.decode(jsonData);
             }
+            taskList.clear(); // Clear the task list before adding new data
+            for (var item in jsonData) {
+              Task task = Task.fromJson(item);
+              taskList.add(task);
+            }
           }
         },
       );
@@ -291,7 +349,7 @@ class TaskController extends GetxController {
   Future taskCheckIn({
     required String tdId,
     required String checkIn,
-    required Map geoCheckin,
+    required String geoCheckin,
     required String empId,
   }) async {
     try {
@@ -353,15 +411,30 @@ class TaskController extends GetxController {
     required String taskId,
     required String approvedStatus,
   }) async {
+    setLoading();
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "user_id": userId,
         "taskid": taskId,
         "approvedstatus": approvedStatus,
-      };
+      });
       await apiService.post(AppUrls.updateTaskStatus, data).then(
         (response) {
-          Constant.printValue("Response of updateTaskStatus API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            if (jsonData['success'].toString() ==
+                StringConstants.apiSuccessStatus) {
+              apiCallSuccess.value = true;
+              errorMessage = null;
+              getCurrentDayTaskList();
+            } else {
+              apiCallSuccess.value = false;
+              errorMessage = jsonData['message'] ?? "Failed to check in";
+            }
+          }
         },
       );
     } finally {

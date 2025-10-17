@@ -42,9 +42,9 @@ class _AssignTaskScreenState extends State<AssignTaskScreen> {
   // validate the form fields
   bool validateForm() {
     if (taskDate.text.isEmpty ||
-        customerController.customersStringList.isEmpty ||
+        customerName.text.isEmpty ||
         assignTo.text.isEmpty) {
-      AppSnackBar.showSnackBar("Please select a task date");
+      AppSnackBar.showSnackBar("Please fill all data.");
       return false;
     }
     return true;
@@ -182,7 +182,7 @@ class _AssignTaskScreenState extends State<AssignTaskScreen> {
         location.text,
         "0",
         customerName.text,
-        createTaskController.selectedItem.value.toString(),
+        (createTaskController.selectedItem.value + 1).toString(),
         assignTo.text,
       );
     }

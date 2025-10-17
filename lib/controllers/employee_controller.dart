@@ -5,12 +5,16 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:bmr/controllers/auth_controller.dart';
 import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/data/model/DayInVerificationModel.dart';
+import 'package:bmr/data/model/RegionBasedEmployee.dart';
+import 'package:bmr/data/model/RouteHistory.dart';
 import 'package:bmr/data/model/employee.dart';
+import 'package:bmr/data/model/employee_location.dart';
 import 'package:bmr/data/pref_data.dart';
 import 'package:bmr/ui/constants/strings_constants.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:location/location.dart' as lct;
 import 'package:uuid/uuid.dart';
 
@@ -28,6 +32,10 @@ class EmployeeController extends GetxController {
   DayInVerificationModel? dayInVerificationModel;
   MapController mapController = Get.find();
   RxList<Employee> employeeList = <Employee>[].obs;
+  RxList<EmployeeLocation> employeeLocation = <EmployeeLocation>[].obs;
+  RxList<RouteHistory> routeHistory = <RouteHistory>[].obs;
+  RxList<RegionBasedEmployee> regionBasedEmployees =
+      <RegionBasedEmployee>[].obs;
   RxList<String> employeeListString = <String>[].obs;
   String? errorMessage;
 
@@ -83,13 +91,14 @@ class EmployeeController extends GetxController {
     var checkIn = DateConverter.convertDate(DateTime.now(),
         format: 'yyyy-MM-dd HH:mm:ss');
     try {
+      if (user == null) await getUser();
       var data = dio.FormData.fromMap({
         "empid": user!.eId,
         "check_in": checkIn,
-        "geo_checkin": {
+        "geo_checkin": jsonEncode({
           "lat": mapController.currentLocation!.latitude.toString(),
           "lon": mapController.currentLocation!.longitude.toString()
-        },
+        }).toString(),
         "starting_meter": startMeterReading
       });
       await apiService.post(AppUrls.createAttendance, data).then(
@@ -141,10 +150,10 @@ class EmployeeController extends GetxController {
         "empid": user!.eId,
         "update_id": updateId,
         "check_out": checkOut,
-        "geo_checkout": {
+        "geo_checkout": jsonEncode({
           "lat": mapController.currentLocation?.latitude.toString(),
           "lon": mapController.currentLocation?.longitude.toString()
-        },
+        }),
         "closing_meter": closingMeter
       });
 
@@ -196,6 +205,7 @@ class EmployeeController extends GetxController {
               PrefData.saveDayInVerificationData(
                 dayInVerificationModel!,
               );
+              PrefData.saveCheckInId(dayInVerificationModel!.updateId!);
               getHoursLoggedTime();
             } else {
               dayInVerificationDataFound.value = false;
@@ -238,10 +248,10 @@ class EmployeeController extends GetxController {
         "timestamp": DateConverter.convertDate(DateTime.now(),
             format: 'yyyy-MM-dd HH:mm:ss'),
         "device_id": deviceId,
-        "gps_coordinates": {
-          "lat": mapController.currentLocation!.latitude,
-          "lon": mapController.currentLocation!.longitude
-        },
+        "gps_coordinates": jsonEncode({
+          "lat": mapController.currentLocation!.latitude.toString(),
+          "lon": mapController.currentLocation!.longitude.toString()
+        }),
         "battery_level": batteryLevel.toString()
       });
       await apiService.post(AppUrls.employeeGpsLog, data).then(
@@ -290,7 +300,7 @@ class EmployeeController extends GetxController {
 
     try {
       var data = dio.FormData.fromMap({
-        "region_id": "",
+        "region_id": regionId,
         "login_id": userController.user!.eId,
       });
       await apiService.post(AppUrls.getregionemployeelist, data).then(
@@ -303,15 +313,14 @@ class EmployeeController extends GetxController {
               jsonData = json.decode(jsonData);
             }
 
-            employeeList.clear();
-            employeeListString.clear();
+            regionBasedEmployees.clear();
 
             for (var item in jsonData) {
-              employeeList.add(Employee.fromJson(item));
+              regionBasedEmployees.add(RegionBasedEmployee.fromJson(item));
 
-              // Add employee name to the string list combine first and last name
-              String employeeName = "${item['firstname']} ${item['lastname']}";
-              employeeListString.add(employeeName);
+              // // Add employee name to the string list combine first and last name
+              // String employeeName = "${item['firstname']} ${item['lastname']}";
+              // employeeListString.add(employeeName);
             }
           }
         },
@@ -323,33 +332,65 @@ class EmployeeController extends GetxController {
 
   Future employeeLiveRoute() async {
     try {
-      var data = {
-        "emp_id": "",
-        "date": "",
-      };
+      setLoading();
+      employeeLocation.clear();
+      var user = await PrefData.getUser();
+      DateTime now = DateTime.now();
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+      var data = dio.FormData.fromMap({
+        "emp_id": user!.eId,
+        "date": formattedDate,
+      });
+
       await apiService.post(AppUrls.getliveroute, data).then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            for (var data in jsonData) {
+              employeeLocation.add(EmployeeLocation.fromJson(data));
+            }
+          }
         },
       );
     } finally {
       setLoading();
+      update();
     }
   }
 
-  Future employeeRouteHistory() async {
+  Future employeeRouteHistory({String? date}) async {
     try {
-      var data = {
-        "emp_id": "",
-        "date": "",
-      };
+      setLoading();
+      update();
+      routeHistory.clear();
+      var user = await PrefData.getUser();
+      DateTime now = DateTime.now();
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+      var data = dio.FormData.fromMap({
+        "emp_id": user!.eId,
+        "date": date ?? formattedDate,
+      });
       await apiService.post(AppUrls.getemployeelivelog, data).then(
         (response) {
-          Constant.printValue("Response of Login api is :  $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            for (var data in jsonData) {
+              routeHistory.add(RouteHistory.fromJson(data));
+            }
+          }
         },
       );
     } finally {
       setLoading();
+      update();
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:bmr/data/model/task.dart';
 import 'package:bmr/ui/constants/constant.dart';
 import 'package:bmr/ui/screens/approval/approval_screen.dart';
 import 'package:bmr/ui/screens/date_in_out/day_in_out_screen.dart';
@@ -25,6 +26,7 @@ import 'package:bmr/ui/screens/task/view_task_screen.dart';
 import 'package:bmr/ui/screens/todo/todo_list_screen.dart';
 import 'package:bmr/ui/screens/tracking/employee_route_history.dart';
 import 'package:bmr/ui/screens/tracking/location_screen.dart';
+import 'package:bmr/ui/screens/tracking/map_view.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
@@ -70,14 +72,23 @@ final GoRouter mobileRoutes = GoRouter(
       builder: (context, state) => const CurrentDayTaskScreen(),
     ),
     GoRoute(
-      path: AppPath.creteTaskPath,
-      name: AppPath.creteTaskPath,
-      builder: (context, state) => const CreateTaskScreen(),
-    ),
+        path: AppPath.creteTaskPath,
+        name: AppPath.creteTaskPath,
+        builder: (context, state) {
+          var param = state.extra == null ? null : state.extra as Task;
+          return CreateTaskScreen(
+            task: param,
+          );
+        }),
     GoRoute(
       path: AppPath.sampling,
       name: AppPath.sampling,
-      builder: (context, state) => const SamplingScreen(),
+      builder: (context, state) {
+        var customerId = state.extra;
+        return SamplingScreen(
+          customerId: state.extra != null ? state.extra as String : null,
+        );
+      },
     ),
     GoRoute(
       path: AppPath.createPond,
@@ -87,38 +98,89 @@ final GoRouter mobileRoutes = GoRouter(
     GoRoute(
       path: AppPath.createSampling,
       name: AppPath.createSampling,
-      builder: (context, state) => const CreateSamplingScreen(),
+      builder: (context, state) {
+        var data = state.extra as Map;
+        var custId = data['custId'];
+        var pondId = data['pondId'];
+        var cycleId = data['cycleId'];
+        return CreateSamplingScreen(
+          custId: custId,
+          pondId: pondId,
+          cycleId: cycleId,
+        );
+      },
     ),
     GoRoute(
-      path: AppPath.historySampling,
-      name: AppPath.historySampling,
-      builder: (context, state) => const HistorySamplingScreen(),
-    ),
+        path: AppPath.historySampling,
+        name: AppPath.historySampling,
+        builder: (context, state) {
+          var data = state.extra as Map;
+          var custId = data['custId'];
+          var cycleId = data['cycleId'];
+          var pondId = data['pondId'];
+          var request = data['request'];
+          return HistorySamplingScreen(
+            custId: custId,
+            cycleId: cycleId,
+            pondId: pondId,
+            request: request,
+          );
+        }),
     GoRoute(
-      path: AppPath.harvest,
-      name: AppPath.harvest,
-      builder: (context, state) => const HarvestingScreen(),
-    ),
+        path: AppPath.harvest,
+        name: AppPath.harvest,
+        builder: (context, state) {
+          return HarvestingScreen(
+            customerId: state.extra != null ? state.extra as String : null,
+          );
+        }),
     GoRoute(
-      path: AppPath.enterHarvest,
-      name: AppPath.enterHarvest,
-      builder: (context, state) => const CreateHarvestScreen(),
-    ),
+        path: AppPath.enterHarvest,
+        name: AppPath.enterHarvest,
+        builder: (context, state) {
+          var data = state.extra as Map;
+          var custId = data['custId'];
+          var pondId = data['pondId'];
+          var cycleId = data['cycleId'];
+          return CreateHarvestScreen(
+            custId: custId,
+            pondId: pondId,
+            cycleId: cycleId,
+          );
+        }),
     GoRoute(
-      path: AppPath.historyHarvest,
-      name: AppPath.historyHarvest,
-      builder: (context, state) => const HistoryHarvestScreen(),
-    ),
+        path: AppPath.historyHarvest,
+        name: AppPath.historyHarvest,
+        builder: (context, state) {
+          var data = state.extra as Map;
+          var custId = data['custId'];
+          var cycleId = data['cycleId'];
+          var pondId = data['pondId'];
+          var request = data['request'];
+          return HistoryHarvestScreen(
+            custId: custId,
+            cycleId: cycleId,
+            pondId: pondId,
+            request: request,
+          );
+        }),
     GoRoute(
       path: AppPath.pondList,
       name: AppPath.pondList,
       builder: (context, state) => const PondScreen(),
     ),
     GoRoute(
-      path: AppPath.pondDetails,
-      name: AppPath.pondDetails,
-      builder: (context, state) => const PondDetailsScreen(),
-    ),
+        path: AppPath.pondDetails,
+        name: AppPath.pondDetails,
+        builder: (context, state) {
+          var data = state.extra as Map;
+          var cycleId = data['cycleId'];
+          var pondId = data['pondId'];
+          return PondDetailsScreen(
+            cycleId: cycleId,
+            pondId: pondId,
+          );
+        }),
     GoRoute(
       path: AppPath.technicalQuries,
       name: AppPath.technicalQuries,
@@ -204,6 +266,14 @@ final GoRouter mobileRoutes = GoRouter(
       name: AppPath.assignTask,
       builder: (context, state) => const AssignTaskScreen(),
     ),
+    GoRoute(
+        path: AppPath.mapView,
+        name: AppPath.mapView,
+        builder: (context, state) {
+          return MapView(
+            currentLocation: state.extra as bool,
+          );
+        }),
   ],
 );
 
@@ -230,6 +300,7 @@ class AppPath {
   static String directTechnical = "/directTechnical";
   static String taskHistory = "/taskHistory";
   static String profile = "/profile";
+  static String mapView = "/mapView";
   static String changePassword = "/changePassword";
   static String leaveRequest = "/leaveRequest";
   static String viewTask = "/viewTask";

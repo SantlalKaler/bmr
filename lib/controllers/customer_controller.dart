@@ -29,6 +29,7 @@ class CustomerController extends GetxController {
   RxInt selectedActiveInactive = 0.obs;
   RxList<Customer> customers = RxList();
   RxList<String> customersStringList = RxList();
+  RxList<String> customersAddressList = RxList();
   RxList<String> customersStringFilterList = <String>[].obs;
 
   // create a observable list of choice chip items
@@ -78,6 +79,9 @@ class CustomerController extends GetxController {
                 customersStringList.add(
                   "${cust['first_name']} ${cust['last_name']}".trim(),
                 );
+                customersAddressList.add(
+                  "${cust['city_village']}, ${cust['state']}".trim(),
+                );
               }
             }
 
@@ -110,12 +114,24 @@ class CustomerController extends GetxController {
   String? getCustomerIdByName(String name) {
     return customers
         .firstWhere(
-          (c) =>
-              "${c.firstName ?? ''} ${c.lastName ?? ''}".trim().toLowerCase() ==
-              name.trim().toLowerCase(),
+          (c) => "${c.firstName ?? ''} ${c.lastName ?? ''}"
+              .trim()
+              .toLowerCase()
+              .contains(name.trim().toLowerCase()),
           orElse: () => Customer(id: null),
         )
         .id;
+  }
+
+  String? getCustomerLocationByName(String name) {
+    Customer customer = customers.firstWhere(
+      (c) =>
+          "${c.firstName ?? ''} ${c.lastName ?? ''}".trim().toLowerCase() ==
+          name.trim().toLowerCase(),
+      orElse: () => Customer(id: null),
+    );
+
+    return "${customer.address1 ?? ''}, ${customer.address2 ?? ''}, ${customer.cityVillage ?? ''}, ${customer.state ?? ''}";
   }
 
   Future createCustomer({

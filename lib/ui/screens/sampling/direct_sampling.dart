@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 
 import '../../../controllers/customer_controller.dart';
 import '../../elements/textfield_with_dropdown_suggestion.dart';
-import 'components/single_sampling_item.dart';
 
 class DirectSamplingScreen extends StatefulWidget {
   const DirectSamplingScreen({super.key});
@@ -73,7 +72,8 @@ class _DirectSamplingScreenState extends State<DirectSamplingScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: 10,
                   itemBuilder: (context, index) {
-                    return SingleSamplingItem();
+                    return Text("");
+                    // return SingleSamplingItem();
                   },
                 ),
               )

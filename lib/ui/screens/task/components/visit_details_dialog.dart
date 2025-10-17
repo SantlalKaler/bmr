@@ -8,7 +8,8 @@ import '../../../constants/image_constants.dart';
 import '../../../theme_light.dart';
 
 class VisitDetailsDialog extends StatefulWidget {
-  const VisitDetailsDialog({super.key});
+  final String customerId;
+  const VisitDetailsDialog({super.key, required this.customerId});
 
   @override
   State<VisitDetailsDialog> createState() => _VisitDetailsDialogState();
@@ -22,8 +23,7 @@ class _VisitDetailsDialogState extends State<VisitDetailsDialog> {
         'title': 'Sampling',
         'color': Colors.orangeAccent,
         'onTap': () {
-          print("Sampling click");
-          context.push(AppPath.sampling);
+          context.push(AppPath.sampling, extra: widget.customerId);
         },
         'icon': ImageConstants.sampling, // 🔍 Replace with appropriate icon
         'comment': 'Report Icon'
@@ -32,7 +32,7 @@ class _VisitDetailsDialogState extends State<VisitDetailsDialog> {
         'title': 'Harvest',
         'color': Colors.teal,
         'onTap': () {
-          context.push(AppPath.harvest);
+          context.push(AppPath.harvest, extra: widget.customerId);
         },
         'icon': ImageConstants.harvest, // 🔍 Replace with appropriate icon
         'comment': 'Report Icon'
@@ -60,9 +60,9 @@ class _VisitDetailsDialogState extends State<VisitDetailsDialog> {
       width: double.infinity,
       decoration: BoxDecoration(color: scaffoldBackgroundColor),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            // height: 30,
             width: double.infinity,
             padding: EdgeInsets.all(DimensConstants.screenPadding),
             decoration: BoxDecoration(
@@ -83,14 +83,14 @@ class _VisitDetailsDialogState extends State<VisitDetailsDialog> {
                   onTap: () {
                     context.pop();
                   },
-                  child: Icon(
+                  child: const Icon(
                     Icons.cancel,
                     color: Colors.white,
                     size: 25,
                   ),
                 ),
-                Gap(20),
-                Text("Visit Details",
+                const Gap(20),
+                const Text("Visit Details",
                     style: TextStyle(color: Colors.white, fontSize: 18))
               ],
             ),

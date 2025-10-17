@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:bmr/data/model/pond.dart';
+import 'package:bmr/data/model/pond_sampling.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
 import '../ui/constants/constant.dart';
-import '../ui/constants/strings_constants.dart';
 
 class PondController extends GetxController {
   RxBool loading = false.obs;
@@ -15,6 +16,9 @@ class PondController extends GetxController {
 
   setLoading() => loading.value = !loading.value;
   RxBool pondSamplingListHasData = false.obs;
+  List<PondSampling> pondSamplings = [];
+  PondSampling? selectedPondSampling;
+  Pond? pond;
 
   Future createPond({
     required String empId,
@@ -122,23 +126,35 @@ class PondController extends GetxController {
     required String cycleId,
     required String pondId,
   }) async {
+    setLoading();
+    pond = null;
     try {
-      var data = {
-        "cycle_id": cycleId,
+      var data = dio.FormData.fromMap({
         "pondid": pondId,
-      };
+      });
+      if (cycleId != null && cycleId.isNotEmpty) {
+        data.fields.add(MapEntry("cycle_id", cycleId));
+      }
       await apiService.post(AppUrls.getPondDetails, data).then(
         (response) {
-          Constant.printValue("Response of getPondDetails API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            pond = Pond.fromJson(jsonData);
+          }
         },
       );
     } finally {
       setLoading();
+      update();
     }
   }
 
   Future getPondSamplingList(String customerId) async {
     setLoading();
+    pondSamplings.clear();
     try {
       var data = dio.FormData.fromMap({
         "cust_id": customerId,
@@ -150,10 +166,10 @@ class PondController extends GetxController {
             if (jsonData is String) {
               jsonData = json.decode(jsonData);
             }
-            Constant.printValue(
-                "Response of create task API: ${jsonData['success']}");
-            if (jsonData['success'].toString() ==
-                StringConstants.apiSuccessStatus) {
+            if (!jsonData.isEmpty) {
+              for (var data in jsonData) {
+                pondSamplings.add(PondSampling.fromJson(data));
+              }
               pondSamplingListHasData.value = true;
             } else {
               pondSamplingListHasData.value = false;
@@ -164,6 +180,7 @@ class PondController extends GetxController {
       );
     } finally {
       setLoading();
+      update();
     }
   }
 }

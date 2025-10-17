@@ -1,3 +1,4 @@
+import 'package:bmr/data/model/task.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
 import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/elements/app_snackbar.dart';
@@ -14,7 +15,8 @@ import '../widgets/app_choice_chip.dart';
 import '../widgets/top_app_bar.dart';
 
 class CreateTaskScreen extends StatefulWidget {
-  const CreateTaskScreen({super.key});
+  final Task? task;
+  const CreateTaskScreen({super.key, this.task});
 
   @override
   State<CreateTaskScreen> createState() => _CreateTaskScreenState();
@@ -32,7 +34,22 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   @override
   void initState() {
     super.initState();
-    customerController.getCustomerList();
+    setData();
+  }
+
+  void setData() async {
+    var task = widget.task;
+    await customerController.getCustomerList();
+    if (widget.task != null) {
+      DateFormat format = DateFormat("dd-MM-yyyy");
+      taskDate.text =
+          DateFormat('MMM dd yyyy').format(format.parse(task!.createdDate!));
+      customerName.text = task.customername ?? "";
+      description.text = task.description ?? "";
+      location.text = task.location ?? "";
+      taskController.selectedItem.value =
+          (num.parse(task.transport ?? "0") - 1).toInt();
+    }
   }
 
   void createTaskSummary() async {
@@ -51,7 +68,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
           location.text,
           "0",
           customerName.text,
-          taskController.selectedItem.value.toString(),
+          (taskController.selectedItem.value + 1).toString(),
           "");
 
       if (taskController.apiCallSuccess.isTrue) {
@@ -59,6 +76,35 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         context.pop();
       } else {
         AppSnackBar.showSnackBar("Failed to create task");
+      }
+    }
+  }
+
+  void updateTaskSummary() async {
+    // check if all fields are filled
+    if (description.text.isEmpty ||
+        // location.text.isEmpty ||
+        taskDate.text.isEmpty ||
+        customerName.text.isEmpty) {
+      AppSnackBar.showSnackBar(
+        "Please fill all fields",
+      );
+      return;
+    } else {
+      await taskController.updateTaskSummary(
+          widget.task!.id!,
+          description.text,
+          location.text,
+          "0",
+          customerName.text,
+          (taskController.selectedItem.value + 1).toString(),
+          "");
+
+      if (taskController.apiCallSuccess.isTrue) {
+        AppSnackBar.showSnackBar("Task updated successfully");
+        context.pop();
+      } else {
+        AppSnackBar.showSnackBar("Failed to update task");
       }
     }
   }
@@ -77,7 +123,9 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             ),
             floatingActionButton: Obx(() => GestureDetector(
                   onTap: () {
-                    createTaskSummary();
+                    widget.task != null
+                        ? updateTaskSummary()
+                        : createTaskSummary();
                   },
                   child: Container(
                     height: 40,
@@ -91,17 +139,17 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                         ? const AppLoader(
                             color: Colors.white,
                           )
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.add_circle_rounded,
                                 color: Colors.white,
                               ),
                               Gap(10),
-                              Text("CREATE",
-                                  style: TextStyle(
+                              Text(widget.task != null ? "Update" : "CREATE",
+                                  style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold))
                             ],
@@ -139,10 +187,19 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   Obx(
                     () => TextFieldWithDropdownSuggestion(
                       list: customerController.customersStringList,
+                      subTitleList:
+                          customerController.customersAddressList.isNotEmpty
+                              ? customerController.customersAddressList
+                              : null,
                       controller: customerName,
                       hintText: customerController.loading.isTrue
                           ? "Loading customer data..."
                           : 'Customer name',
+                      onSelect: () {
+                        location.text = customerController
+                                .getCustomerLocationByName(customerName.text) ??
+                            "";
+                      },
                     ),
                   ),
                   const Gap(10),
@@ -158,6 +215,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   TextField(
                     controller: location,
                     enabled: false,
+                    maxLines: 2,
                     decoration: const InputDecoration(
                       hintText: "Location",
                     ),

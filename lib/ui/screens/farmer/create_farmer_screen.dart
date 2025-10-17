@@ -39,7 +39,7 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
   @override
   void initState() {
     super.initState();
-
+    resetForm();
     customController.getStateCityList();
     customController.getZoneList();
   }
@@ -314,6 +314,8 @@ class _CreateFarmerScreenState extends State<CreateFarmerScreen> {
     customerController.selectedOwnOthers.value = 0;
     customerController.selectedFarmerDealer.value = 0;
     customerController.selectedActiveInactive.value = 0;
+    customerController.errorMessage = null;
+    customerController.mobileAlreadyRegistered.value = false;
   }
 
   bool validateFrom() {

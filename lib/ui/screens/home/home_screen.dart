@@ -223,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      "House Logged: ${employeeController.hoursLogged}",
+                      "Hours Logged: ${employeeController.hoursLogged}",
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -254,20 +254,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 15.0, vertical: 12),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.login_outlined,
                                 color: Colors.white,
                               ),
-                              Gap(5),
+                              const Gap(5),
                               Text(
-                                "Day In: 00:00",
-                                style: TextStyle(color: Colors.white),
+                                "Day In: ${employeeController.dayInVerificationModel != null ? DateFormat("HH:mm").format(DateTime.parse(employeeController.dayInVerificationModel!.checkinTime!)) : ""}",
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ],
                           ),

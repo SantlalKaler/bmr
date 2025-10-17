@@ -1,12 +1,14 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../data/api_services.dart';
 import '../data/app_urls.dart';
-import '../ui/constants/constant.dart';
 
 class HarvesterController extends GetxController {
   RxBool loading = false.obs;
+  RxBool apiCallSuccess = false.obs;
 
   ApiService apiService = ApiService();
 
@@ -38,6 +40,7 @@ class HarvesterController extends GetxController {
     required String filePath,
   }) async {
     try {
+      setLoading();
       var formData = dio.FormData.fromMap({
         "task_id": taskId,
         "cycle_id": cycleId,
@@ -62,12 +65,23 @@ class HarvesterController extends GetxController {
         "doc": doc,
         "acres": acres,
         "total_feed": totalFeed,
-        "sampling_file": await dio.MultipartFile.fromFile(filePath),
+        "sampling_file":
+            filePath.isEmpty ? "" : await dio.MultipartFile.fromFile(filePath),
       });
 
       await apiService.post(AppUrls.createHarvest, formData).then(
         (response) {
-          Constant.printValue("Response of createHarvest API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            if (jsonData['success'] == "1") {
+              apiCallSuccess.value = true;
+            } else {
+              apiCallSuccess.value = false;
+            }
+          }
         },
       );
     } finally {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bmr/controllers/user_controller.dart';
+import 'package:bmr/data/model/leave.dart';
 import 'package:bmr/ui/constants/strings_constants.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
@@ -16,6 +17,7 @@ class LeaveController extends GetxController {
   String? errorMessage;
 
   ApiService apiService = ApiService();
+  RxList<Leave> leaves = <Leave>[].obs;
 
   setLoading() => loading.value = !loading.value;
 
@@ -58,8 +60,10 @@ class LeaveController extends GetxController {
             var jsonData = response.data;
             if (jsonData is String) {
               jsonData = json.decode(jsonData);
+              Constant.printValue("api called successfully");
             }
-            if (jsonData['success'] == StringConstants.apiSuccessStatus) {
+            if (jsonData['success'].toString() ==
+                StringConstants.apiSuccessStatus) {
               createLeaveSuccess.value = true;
               errorMessage = null;
             } else {
@@ -77,17 +81,21 @@ class LeaveController extends GetxController {
 
   Future getLeaveApprovalList() async {
     setLoading();
+    leaves.clear();
     UserController userController = Get.find();
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "emp_id": userController.user!.eId!,
-      };
+      });
       await apiService.post(AppUrls.getLeaveApprovalList, data).then(
         (response) {
           if (response != null) {
             var jsonData = response.data;
             if (jsonData is String) {
               jsonData = json.decode(jsonData);
+            }
+            for (var data in jsonData) {
+              leaves.add(Leave.fromJson(data));
             }
           }
         },

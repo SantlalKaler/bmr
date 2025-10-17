@@ -2,6 +2,7 @@ import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/data/model/user.dart';
 import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/routes/mobile_routes.dart';
+import 'package:bmr/ui/screens/task/components/pending_task.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -89,7 +90,9 @@ class _CurrentDayTaskScreenState extends State<CurrentDayTaskScreen>
                                   CurrentDay(
                                     taskList: taskController.taskList,
                                   ),
-                                  Center(child: Text("Tomorrow's Tasks")),
+                                  PendingTask(
+                                    taskList: taskController.taskList,
+                                  ),
                                 ],
                               ),
                             ),

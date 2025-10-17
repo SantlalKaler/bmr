@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:bmr/data/model/ActiveCycle.dart';
+import 'package:bmr/data/model/sample_history.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
@@ -14,6 +16,8 @@ class SamplingController extends GetxController {
   ApiService apiService = ApiService();
   String? errorMessage;
   setLoading() => loading.value = !loading.value;
+  List<SampleHistory> sampleHistory = [];
+  List<ActiveCycle> activeCycle = [];
 
   Future createSampling({
     required String cycleId,
@@ -75,18 +79,29 @@ class SamplingController extends GetxController {
     required String pondId,
     required String custId,
   }) async {
+    setLoading();
+    activeCycle.clear();
     try {
-      var data = {
+      var data = dio.FormData.fromMap({
         "pond_id": pondId,
         "cust_id": custId,
-      };
+      });
       await apiService.post(AppUrls.checkActiveCycle, data).then(
         (response) {
-          Constant.printValue("Response of checkActiveCycle API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            for (var data in jsonData) {
+              activeCycle.add(ActiveCycle.fromJson(data));
+            }
+          }
         },
       );
     } finally {
       setLoading();
+      update();
     }
   }
 
@@ -96,21 +111,33 @@ class SamplingController extends GetxController {
     required String pondId,
     required String request,
   }) async {
+    sampleHistory.clear();
     try {
       setLoading();
       var data = dio.FormData.fromMap({
         "cust_id": custId,
-        "cycle_id": cycleId,
         "pond_id": pondId,
         "request": request,
       });
+      if (cycleId != null && cycleId.isNotEmpty) {
+        data.fields.add(MapEntry("cycle_id", cycleId));
+      }
       await apiService.post(AppUrls.getSampleHistory, data).then(
         (response) {
-          Constant.printValue("Response of getSampleHistory API: $response");
+          if (response != null) {
+            var jsonData = response.data;
+            if (jsonData is String) {
+              jsonData = json.decode(jsonData);
+            }
+            for (var data in jsonData) {
+              sampleHistory.add(SampleHistory.fromJson(data));
+            }
+          }
         },
       );
     } finally {
       setLoading();
+      update();
     }
   }
 

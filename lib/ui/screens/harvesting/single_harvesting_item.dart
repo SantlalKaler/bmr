@@ -1,23 +1,26 @@
+import 'package:bmr/controllers/pond_controller.dart';
 import 'package:bmr/data/model/pond_sampling.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../elements/vertical_line.dart';
-import '../../../routes/mobile_routes.dart';
-import '../../../theme_light.dart';
+import '../../elements/vertical_line.dart';
+import '../../routes/mobile_routes.dart';
+import '../../theme_light.dart';
 
-class SingleSamplingItem extends StatefulWidget {
+class SingleHarvestingItem extends StatefulWidget {
   final PondSampling pondSampling;
   final String custId;
-  const SingleSamplingItem(
+  const SingleHarvestingItem(
       {super.key, required this.pondSampling, required this.custId});
 
   @override
-  State<SingleSamplingItem> createState() => _SingleSamplingItemState();
+  State<SingleHarvestingItem> createState() => _SingleHarvestingItemState();
 }
 
-class _SingleSamplingItemState extends State<SingleSamplingItem> {
+class _SingleHarvestingItemState extends State<SingleHarvestingItem> {
+  PondController pondController = Get.find();
   @override
   Widget build(BuildContext context) {
     PondSampling pondSample = widget.pondSampling;
@@ -37,6 +40,7 @@ class _SingleSamplingItemState extends State<SingleSamplingItem> {
             Gap(10),
             Container(
               height: 40,
+              width: double.infinity,
               decoration: BoxDecoration(
                   color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(10)),
@@ -70,9 +74,9 @@ class _SingleSamplingItemState extends State<SingleSamplingItem> {
                         "custId": widget.custId,
                         "pondId": pondSample.id,
                         "cycleId": pondSample.cycleId,
-                        "request": "0"
+                        "request": "1"
                       };
-                      context.push(AppPath.historySampling, extra: data);
+                      context.push(AppPath.historyHarvest, extra: data);
                     },
                     child: Text(
                       "History",
@@ -87,15 +91,16 @@ class _SingleSamplingItemState extends State<SingleSamplingItem> {
                   Expanded(
                       child: GestureDetector(
                     onTap: () {
+                      pondController.selectedPondSampling = pondSample;
                       var data = {
                         "custId": widget.custId,
                         "pondId": pondSample.id,
                         "cycleId": pondSample.cycleId
                       };
-                      context.push(AppPath.createSampling, extra: data);
+                      context.push(AppPath.enterHarvest, extra: data);
                     },
                     child: Text(
-                      "Enter\nSampling",
+                      "Enter\nHarvest",
                       style: TextStyle(color: primaryColorLight),
                       textAlign: TextAlign.center,
                     ),

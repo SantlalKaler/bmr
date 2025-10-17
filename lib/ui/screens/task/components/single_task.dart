@@ -1,18 +1,23 @@
+import 'dart:convert';
+
 import 'package:bmr/controllers/map_controller.dart';
 import 'package:bmr/controllers/task_controller.dart';
 import 'package:bmr/controllers/user_controller.dart';
 import 'package:bmr/data/model/task.dart';
 import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/elements/app_snackbar.dart';
+import 'package:bmr/ui/routes/mobile_routes.dart';
 import 'package:bmr/ui/theme_light.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 
 import 'visit_details_dialog.dart';
 
 class SingleTask extends StatefulWidget {
   Task task;
+
   SingleTask({super.key, required this.task});
 
   @override
@@ -26,11 +31,59 @@ class _SingleTaskState extends State<SingleTask> {
   UserController userController = Get.find();
 
   void showVisitDetailsDialogs(BuildContext context) {
+    taskController.selectedTask = widget.task;
     showDialog(
       context: context,
-      builder: (_) => const Dialog(
-        child: VisitDetailsDialog(),
+      builder: (_) => Dialog(
+        child: VisitDetailsDialog(
+          customerId: widget.task.customerId!,
+        ),
       ),
+    );
+  }
+
+  void showStatusChangeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Obx(() => AlertDialog(
+              content: const Text("Task Approval Status"),
+              actions: taskController.loading.isTrue
+                  ? [const AppLoader()]
+                  : [
+                      TextButton(
+                        onPressed: () async {
+                          await taskController.updateTaskStatus(
+                              userId: userController.user!.eId!,
+                              taskId: widget.task!.id!,
+                              approvedStatus: '2');
+
+                          if (taskController.apiCallSuccess.isTrue) {
+                            context.pop();
+                          } else {
+                            AppSnackBar.showSnackBar(
+                                taskController.errorMessage);
+                          }
+                        },
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                          onPressed: () async {
+                            await taskController.updateTaskStatus(
+                                userId: userController.user!.eId!,
+                                taskId: widget.task.id!,
+                                approvedStatus: '1');
+                            if (taskController.apiCallSuccess.isTrue) {
+                              context.pop();
+                            } else {
+                              AppSnackBar.showSnackBar(
+                                  taskController.errorMessage);
+                            }
+                          },
+                          child: const Text("Approve"))
+                    ],
+            ));
+      },
     );
   }
 
@@ -59,7 +112,7 @@ class _SingleTaskState extends State<SingleTask> {
                     ),
                     const Gap(15),
                     Text(
-                      widget.task.sname ?? "",
+                      widget.task.customername ?? "",
                       style: TextStyle(
                           color: primaryColorDark, fontWeight: FontWeight.bold),
                     )
@@ -75,16 +128,27 @@ class _SingleTaskState extends State<SingleTask> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.task.status ?? "",
-                  style: Theme.of(context).textTheme.bodySmall,
+                InkWell(
+                  onTap: () {
+                    showStatusChangeDialog(context);
+                  },
+                  child: Text(
+                    widget.task.approvedStatus == "0"
+                        ? "Pending"
+                        : widget.task.approvedStatus == "2"
+                            ? "Cancelled"
+                            : "Approved",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ),
                 // Text(
                 //   "General",
                 //   style: Theme.of(context).textTheme.bodySmall,
                 // ),
                 IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push(AppPath.creteTaskPath, extra: widget.task);
+                    },
                     icon: Icon(
                       Icons.edit,
                       size: 20,
@@ -115,7 +179,7 @@ class _SingleTaskState extends State<SingleTask> {
                     ),
                     const Gap(20),
                     Text(
-                      "Created By: ${widget.task.customername ?? ""}",
+                      "Created By: ${widget.task.sname ?? ""}",
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -159,7 +223,10 @@ class _SingleTaskState extends State<SingleTask> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              showVisitDetailsDialogs(context);
+                              if (widget.task.checkedIn != null &&
+                                  widget.task.checkedIn != "") {
+                                showVisitDetailsDialogs(context);
+                              }
                             },
                             child: Container(
                                 alignment: Alignment.center,
@@ -176,6 +243,13 @@ class _SingleTaskState extends State<SingleTask> {
                         ),
                       ],
                     ),
+                    const Gap(10),
+                    if (widget.task.checkedIn != null &&
+                        widget.task.checkedIn != "")
+                      Text(
+                        widget.task.checkedIn!,
+                        style: TextStyle(fontSize: 12),
+                      ),
                     const Gap(20),
                     const Divider(),
                     Padding(
@@ -204,13 +278,12 @@ class _SingleTaskState extends State<SingleTask> {
 
   void taskCheckIn() async {
     await taskController.taskCheckIn(
-        // todo: send task id here
-        tdId: "tdId",
+        tdId: widget.task.id!,
         checkIn: DateTime.now().toString(),
-        geoCheckin: {
-          "lat": mapController.currentLocation?.latitude ?? "",
-          "lon": mapController.currentLocation?.longitude ?? "",
-        },
+        geoCheckin: jsonEncode({
+          "lat": mapController.currentLocation?.latitude.toString() ?? "",
+          "lon": mapController.currentLocation?.longitude.toString() ?? "",
+        }),
         empId: userController.user!.eId!);
 
     if (taskController.apiCallSuccess.isTrue) {
@@ -218,6 +291,7 @@ class _SingleTaskState extends State<SingleTask> {
         title: "Task CheckIn Successful",
         "You have successfully checked in to the task.",
       );
+      taskController.getCurrentDayTaskList();
     } else {
       AppSnackBar.showSnackBar(
         taskController.errorMessage,

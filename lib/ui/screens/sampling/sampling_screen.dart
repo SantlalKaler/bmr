@@ -1,5 +1,6 @@
 import 'package:bmr/controllers/customer_controller.dart';
 import 'package:bmr/ui/constants/dimens_constants.dart';
+import 'package:bmr/ui/elements/app_loader.dart';
 import 'package:bmr/ui/screens/sampling/components/single_sampling_item.dart';
 import 'package:bmr/ui/screens/widgets/top_app_bar.dart';
 import 'package:bmr/ui/theme_light.dart';
@@ -11,7 +12,8 @@ import '../../../controllers/pond_controller.dart';
 import '../../elements/textfield_with_dropdown_suggestion.dart';
 
 class SamplingScreen extends StatefulWidget {
-  const SamplingScreen({super.key});
+  final String? customerId;
+  const SamplingScreen({super.key, this.customerId});
 
   @override
   State<SamplingScreen> createState() => _SamplingScreenState();
@@ -25,51 +27,70 @@ class _SamplingScreenState extends State<SamplingScreen> {
   @override
   void initState() {
     super.initState();
-    customerController.getCustomerList();
-    getCustomerSampling("");
+    if (widget.customerId == null) {
+      customerController.getCustomerList();
+    } else {
+      pondController.getPondSamplingList((widget.customerId!));
+    }
   }
 
-  getCustomerSampling(String customerName) {
-    // todo: get customer id based on customer name and send customer id to api
-    pondController.getPondSamplingList("");
+  getCustomerSampling(String customerName) async {
+    var customerId = customerController.getCustomerIdByName(customerName);
+    pondController.getPondSamplingList(customerId!);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: scaffoldBackgroundColor,
-      appBar: const PreferredSize(
-          preferredSize: Size(double.infinity, 120),
-          child: TopAppBar(
-            title: "Sampling",
-          )),
-      body: Padding(
-        padding: EdgeInsets.all(DimensConstants.screenPadding),
-        child: Column(
-          children: [
-            Obx(() => TextFieldWithDropdownSuggestion(
-                  list: customerController.customersStringList,
-                  controller: customerName,
-                  onSelect: () {
-                    getCustomerSampling(customerName.text);
-                  },
-                  hintText: customerController.loading.isTrue
-                      ? "Loading customer data..."
-                      : 'Customer name',
-                )),
-            const Gap(10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 10,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return const SingleSamplingItem();
-                },
+    return GetBuilder(
+        init: PondController(),
+        builder: (controller) => Scaffold(
+              backgroundColor: scaffoldBackgroundColor,
+              appBar: const PreferredSize(
+                  preferredSize: Size(double.infinity, 120),
+                  child: TopAppBar(
+                    title: "Sampling",
+                  )),
+              body: Padding(
+                padding: EdgeInsets.all(DimensConstants.screenPadding),
+                child: Column(
+                  children: [
+                    if (widget.customerId == null)
+                      Obx(() => TextFieldWithDropdownSuggestion(
+                            list: customerController.customersStringList,
+                            controller: customerName,
+                            onSelect: () {
+                              getCustomerSampling(customerName.text);
+                            },
+                            hintText: customerController.loading.isTrue
+                                ? "Loading customer data..."
+                                : 'Customer name',
+                          )),
+                    const Gap(10),
+                    Expanded(
+                      child: controller.loading.isTrue
+                          ? const Center(child: AppLoader())
+                          : controller.pondSamplings.isEmpty
+                              ? const Center(child: Text("No data found."))
+                              : ListView.builder(
+                                  itemCount:
+                                      pondController.pondSamplings.length,
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) {
+                                    var pondSample =
+                                        pondController.pondSamplings[index];
+                                    return SingleSamplingItem(
+                                      pondSampling: pondSample,
+                                      custId: widget.customerId ??
+                                          customerController
+                                              .getCustomerIdByName(
+                                                  customerName.text)!,
+                                    );
+                                  },
+                                ),
+                    )
+                  ],
+                ),
               ),
-            )
-          ],
-        ),
-      ),
-    );
+            ));
   }
 }

@@ -107,3 +107,30 @@ class AppUrls {
 
   static const getZoneList = "index.php/regionalzonemaster/getlistapi";
 }
+
+// employee/getdepartmentlistapi
+// feedbackquestion/getlist
+// feedbackQuestion/feedbackquestionsubmitapi
+/// tasksummary/tasksummarycheckoutapi
+///taskSummary/gettodolistapi
+///taskSummary/gettaskdataapi
+///taskSummary/createtodotaskapi
+///taskSummary/updatetodotaskapi
+///taskSummary/deletetaskapi
+///managementrequest/getlist
+///managementRequest/createRequest
+///managementRequest/updateRequest
+///managementRequest/deleteRequest
+///managementRequest/getemployeedepartment
+///employee/sendcustomermail
+///customers/customerupdateapi
+///tasksummary/createpondapi
+///tasksummary/updatepondapi
+///tasksummary/getpondlist
+///tasksummary/updatesampling
+///tasksummary/updatemytodotaskapi
+///employee/getdepartmentlistapi
+///employee/logout
+///employee/employeeloginlistapi
+///leaverequest/getbalanceleaveapi
+///leaverequest/approvalleaverequestapi
