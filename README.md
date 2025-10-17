@@ -15,7 +15,7 @@ It helps organizations manage, monitor, and analyze their on-ground workforce op
 
 
 | Route | Farmer | Leave | Task List |
-|-----------|----------------|------------|
+|-----------|----------------|------------|------------|
 | ![](assets/screenshots/bmr_ss4.png) | ![](assets/screenshots/bmr_ss5.png) | ![](assets/screenshots/bmr_ss6.png) | ![](assets/screenshots/bmr_ss7.png) |
 
 
