@@ -9,9 +9,14 @@ It helps organizations manage, monitor, and analyze their on-ground workforce op
 
 ## 📷 Screenshots
 
-| Check-In | Live Tracking | Task List | Farmer Detail |
+| Splash |Home | Create Task | Sampling
 |-----------|----------------|------------|----------------|
-| ![](screenshots/bmr_ss0.png) | ![](screenshots/bmr_ss1.png) | ![](screenshots/bmr_ss2.png) | ![](screenshots/bmr_ss1.png) |
+| ![](assets/screenshots/bmr_ss0.png) | ![](assets/screenshots/bmr_ss1.png) | ![](assets/screenshots/bmr_ss2.png) | ![](assets/screenshots/bmr_ss3.png) |
+
+
+| Route | Farmer | Leave | Task List |
+|-----------|----------------|------------|
+| ![](assets/screenshots/bmr_ss4.png) | ![](assets/screenshots/bmr_ss5.png) | ![](assets/screenshots/bmr_ss6.png) | ![](assets/screenshots/bmr_ss7.png) |
 
 
 ## 🚀 Key Features
