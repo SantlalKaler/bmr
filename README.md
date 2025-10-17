@@ -1,16 +1,70 @@
-# bmr
+# 🌾 BMR - Smart Agriculture Field Workforce Management App
 
-A new Flutter project.
+**BMR** is a field tracking and task management application built for teams working in the **agriculture sector**, especially for those involved in **sampling, harvesting, and field inspections**.  
+It helps organizations manage, monitor, and analyze their on-ground workforce operations in **real-time**.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Key Features
 
-A few resources to get you started if this is your first Flutter project:
+### 🕘 Check-In / Check-Out System
+- Users **check in** at the start of their workday and **check out** at the end.  
+- **Live GPS tracking** starts automatically after check-in and stops immediately after checkout.  
+- Captures **vehicle meter readings** (bike/car) during both check-in and check-out to track daily travel distance.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 📍 Real-Time Location Tracking
+- Admins can view **live user routes** and **historical routes**.  
+- Helps analyze **field visit coverage** and optimize travel routes.  
+- Integrated with **Google Maps API** for accurate route visualization.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 👨‍🌾 Farmer Management
+- Maintain a complete **Farmer Database** with profile details.  
+- Add, edit, or delete farmer records.  
+- Store **sampling data, harvesting information, and visit history** for each farmer.
+
+### 📋 Task Scheduling & Assignment
+- Create, assign, and manage **daily or periodic tasks** for field agents.  
+- Perfect for **sampling plans**, **harvesting schedules**, and **inspection visits**.  
+- Real-time **task tracking** and completion updates for admins.
+
+### 🧾 Attendance & Leave Management
+- Employees can **apply for leave** directly through the app.  
+- Admins can **approve/reject** requests instantly.  
+- Attendance and location logs help maintain **accurate working hours**.
+
+### ✅ To-Do & Daily Planner
+- Field agents can create and manage their **own to-do lists**.  
+- Add, edit, and delete personal tasks.  
+- Track progress and improve **daily productivity**.
+
+### 📊 Admin Dashboard & Reports
+- Centralized dashboard to view:
+  - Daily check-ins and check-outs  
+  - Total active agents  
+  - Tasks completed vs pending  
+  - Distance covered and time spent in the field  
+- Export reports for **payroll or performance analysis**.
+
+### 🔔 Notifications & Alerts
+- Instant push notifications for:
+  - Task assignment and updates  
+  - Check-in / checkout reminders  
+  - Leave approvals  
+  - Important announcements
+
+### 🛰️ Offline Support *(Optional)*
+- Record visits even in **low or no network** areas.  
+- Data syncs automatically when connectivity is restored.
+
+---
+
+## 🧰 Tech Stack
+
+| Layer | Technology |
+|-------|-------------|
+| **Frontend** | Flutter (Cross-platform mobile app) |
+| **Backend** | Laravel / |
+| **Maps & Tracking** | Google Maps API, Geolocator |
+| **Notifications** | Firebase Cloud Messaging (FCM) |
+
+---
