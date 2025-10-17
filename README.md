@@ -1,9 +1,18 @@
+
+
 # 🌾 BMR - Smart Agriculture Field Workforce Management App
 
 **BMR** is a field tracking and task management application built for teams working in the **agriculture sector**, especially for those involved in **sampling, harvesting, and field inspections**.  
 It helps organizations manage, monitor, and analyze their on-ground workforce operations in **real-time**.
 
 ---
+
+## 📷 Screenshots
+
+| Check-In | Live Tracking | Task List | Farmer Detail |
+|-----------|----------------|------------|----------------|
+| ![](screenshots/bmr_ss0.png) | ![](screenshots/bmr_ss1.png) | ![](screenshots/bmr_ss2.png) | ![](screenshots/bmr_ss1.png) |
+
 
 ## 🚀 Key Features
 
